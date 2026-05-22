@@ -11,7 +11,7 @@ export interface PedidoTrabajo {
     peligros?: string[]
 }
 
-// ESTADO GLOBAL EN MEMORIA (Fuera de la función para que sea único en la SPA)
+// Objetos estaticos
 const pedidos = ref<PedidoTrabajo[]>([
     { id: 'T-001', titulo: 'Trabajo en campo', fecha: '15/05/2026', nivelRiesgo: 'Alto', estado: 'rechazado', descripcion: 'Mantenimiento de tuberías externas.', peligros: ['Caídas', 'Cortes'] },
     { id: 'T-002', titulo: 'Mantenimiento Eléctrico', fecha: '18/05/2026', nivelRiesgo: 'Alto', estado: 'aprobado', descripcion: 'Cambio de transformador principal.', peligros: ['Electrocución'] },

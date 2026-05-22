@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Rutas relativas subiendo un nivel para agarrar a sus hermanos de carpeta
+// Importamos SideBar y Header
 import Sidebar from './Sidebar.vue'
 import Header from './Header.vue'
 </script>
