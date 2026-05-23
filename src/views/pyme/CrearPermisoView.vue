@@ -1,22 +1,49 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { usePermisos } from '../../composables/usePermisos'
 import BotonPrimario from '../../comunes/BotonPrimario.vue'
 
 const router = useRouter()
-const { agregarPedido } = usePermisos()
+const route = useRoute()
+const { pedidos, agregarPedido, reenviarPedido } = usePermisos()
 
-// Campos basicos del formulario
 const titulo = ref('')
 const fecha = ref('')
 const descripcion = ref('')
 const categoriaSeleccionada = ref('')
-
-// Estado para almacenar las respuestas elegidas (id_pregunta -> id_opcion)
 const respuestas = ref<Record<string, string>>({})
 
-// Estructura de datos con preguntas y opciones reales
+const esCorreccion = ref(false)
+const idPedidoACorregir = ref('')
+
+onMounted(() => {
+    const idQuery = route.query.corregir
+    if (idQuery && typeof idQuery === 'string') {
+        const pedidoExistente = pedidos.value.find(p => p.id === idQuery)
+        if (pedidoExistente) {
+            esCorreccion.value = true
+            idPedidoACorregir.value = pedidoExistente.id
+            titulo.value = pedidoExistente.titulo
+            
+            const partes = pedidoExistente.fecha.split('/')
+            if (partes.length === 3) {
+                fecha.value = `${partes[2]}-${partes[1]}-${partes[0]}`
+            } else {
+                fecha.value = pedidoExistente.fecha
+            }
+            
+            categoriaSeleccionada.value = pedidoExistente.categoria
+            
+            const ultima = pedidoExistente.versiones[pedidoExistente.versiones.length - 1]
+            if (ultima) {
+                descripcion.value = ultima.descripcion
+                respuestas.value = { ...ultima.respuestas }
+            }
+        }
+    }
+})
+
 const bancoPreguntas = {
     'electricidad': [
         {
@@ -71,14 +98,13 @@ const bancoPreguntas = {
     ]
 }
 
-// Obtener las preguntas segun la categoria elegida
 const preguntasActuales = computed(() => {
     if (!categoriaSeleccionada.value) return []
     return bancoPreguntas[categoriaSeleccionada.value as keyof typeof bancoPreguntas] || []
 })
 
-// Cambiar categoria y limpiar respuestas previas
 const seleccionarCategoria = (cat: string) => {
+    if (esCorreccion.value) return // Bloqueado en modo edicion
     categoriaSeleccionada.value = cat
     respuestas.value = {}
 }
@@ -89,12 +115,27 @@ const enviarPedido = () => {
         return
     }
 
-    agregarPedido({
-        titulo: titulo.value,
-        fecha: fecha.value.split('-').reverse().join('/'),
-        nivelRiesgo: 'Calculando...',
-        descripcion: descripcion.value
-    })
+    const totalPreguntas = preguntasActuales.value.length
+    const respondidas = Object.keys(respuestas.value).length
+    if (respondidas < totalPreguntas) {
+        alert('Por favor responde todas las preguntas del cuestionario')
+        return
+    }
+
+    if (esCorreccion.value) {
+        reenviarPedido(idPedidoACorregir.value, {
+            descripcion: descripcion.value,
+            respuestas: respuestas.value
+        })
+    } else {
+        agregarPedido({
+            titulo: titulo.value,
+            fecha: fecha.value.split('-').reverse().join('/'),
+            categoria: categoriaSeleccionada.value,
+            descripcion: descripcion.value,
+            respuestas: respuestas.value
+        })
+    }
 
     router.push('/pyme')
 }
@@ -103,7 +144,9 @@ const enviarPedido = () => {
 <template>
     <div class="max-w-5xl mx-auto space-y-8">
         <div class="border-b-2 border-slate-200 pb-4">
-            <h1 class="text-xl font-black text-slate-800 uppercase tracking-wide">Nuevo pedido de trabajo</h1>
+            <h1 class="text-xl font-black text-slate-800 uppercase tracking-wide">
+                {{ esCorreccion ? 'Corregir Pedido de Trabajo' : 'Nuevo pedido de trabajo' }}
+            </h1>
         </div>
 
         <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-inner space-y-8">
@@ -111,11 +154,11 @@ const enviarPedido = () => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-1">
                     <label class="text-xs font-black uppercase text-slate-500 ml-2">titulo *</label>
-                    <input v-model="titulo" type="text" class="w-full bg-white border-2 border-slate-300 rounded-full px-6 py-3 focus:border-indigo-500 outline-none transition shadow-sm" />
+                    <input v-model="titulo" :disabled="esCorreccion" type="text" class="w-full bg-white border-2 border-slate-300 rounded-full px-6 py-3 focus:border-indigo-500 outline-none transition shadow-sm disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed" />
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs font-black uppercase text-slate-500 ml-2">fecha *</label>
-                    <input v-model="fecha" type="date" class="w-full bg-white border-2 border-slate-300 rounded-full px-6 py-3 focus:border-indigo-500 outline-none transition shadow-sm" />
+                    <input v-model="fecha" :disabled="esCorreccion" type="date" class="w-full bg-white border-2 border-slate-300 rounded-full px-6 py-3 focus:border-indigo-500 outline-none transition shadow-sm disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed" />
                 </div>
             </div>
 
@@ -130,9 +173,14 @@ const enviarPedido = () => {
                     <button 
                         v-for="(_, cat) in bancoPreguntas" 
                         :key="cat"
+                        type="button"
                         @click="seleccionarCategoria(cat)"
-                        :class="categoriaSeleccionada === cat ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400'"
-                        class="px-8 py-2 rounded-full border-2 text-sm font-bold uppercase transition shadow-sm"
+                        :disabled="esCorreccion"
+                        :class="[
+                            categoriaSeleccionada === cat ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400',
+                            esCorreccion && categoriaSeleccionada !== cat ? 'hidden' : ''
+                        ]"
+                        class="px-8 py-2 rounded-full border-2 text-sm font-bold uppercase transition shadow-sm disabled:cursor-not-allowed"
                     >
                         {{ cat }}
                     </button>
@@ -161,7 +209,7 @@ const enviarPedido = () => {
                                     :name="pregunta.id" 
                                     :value="opcion.id"
                                     v-model="respuestas[pregunta.id]"
-                                    class="w-5 h-5 cursor-pointer text-emerald-600 border-2 border-slate-300 focus:ring-emerald-500 accent-emerald-600 focus:ring-0"
+                                    class="w-5 h-5 cursor-pointer text-emerald-600 border-2 border-slate-300 focus:ring-emerald-500科学 accent-emerald-600 focus:ring-0"
                                 />
                             </div>
                             <span class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">
@@ -172,9 +220,12 @@ const enviarPedido = () => {
                 </div>
             </div>
 
-            <div class="flex justify-end pt-4">
+            <div class="flex justify-end pt-4 gap-3">
+                <button type="button" @click="router.push('/pyme')" class="px-6 py-3 rounded-lg border-2 border-slate-300 text-xs font-bold uppercase hover:bg-slate-100 transition">
+                    Cancelar
+                </button>
                 <BotonPrimario @click="enviarPedido">
-                    enviar
+                    {{ esCorreccion ? 'reenviar version' : 'enviar' }}
                 </BotonPrimario>
             </div>
 
