@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
-// Definimos que datos necesita recibir la tarjeta
+// Definimos la estructura del objeto
 interface Permiso {
     id: string
     titulo: string
@@ -12,43 +12,45 @@ interface Permiso {
 }
 
 const props = defineProps<{
-    permiso: Permiso
+    permiso: Permiso,
+    urlBase: string // Nueva prop para definir la ruta base (pyme o admin)
 }>()
 
 const router = useRouter()
 
-// Logica para cambiar el color del círculo de estado con Tailwind
+// Logica de colores segun estado
 const estadoEstilos = computed(() => {
     switch (props.permiso.estado) {
         case 'aprobado':
-        return { circulo: 'bg-emerald-500', texto: 'Aprobado', colorTexto: 'text-emerald-700' }
+            return { circulo: 'bg-emerald-500', texto: 'Aprobado', colorTexto: 'text-emerald-700' }
         case 'rechazado':
-        return { circulo: 'bg-rose-500', texto: 'Rechazado', colorTexto: 'text-rose-700' }
+            return { circulo: 'bg-rose-500', texto: 'Rechazado', colorTexto: 'text-rose-700' }
         case 'pendiente':
         default:
-        return { circulo: 'bg-slate-400', texto: 'Pendiente', colorTexto: 'text-slate-500' }
+            return { circulo: 'bg-slate-400', texto: 'Pendiente', colorTexto: 'text-slate-500' }
     }
 })
 
-// Al hacer clic en cualquier parte de la tarjeta, navegamos al detalle
+// Navegacion dinamica usando la urlBase recibida
 const irAlDetalle = () => {
-    router.push(`/pyme/permisos/${props.permiso.id}`)
+    router.push(`${props.urlBase}/${props.permiso.id}`)
 }
 </script>
 
 <template>
     <div 
         @click="irAlDetalle"
-        class="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-indigo-400 transition-all duration-200 cursor-pointer flex flex-col justify-between relative h-44 group"
+        class="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-indigo-400 transition-all duration-200 cursor-pointer flex flex-col justify-between h-44 group"
     >
         <div class="flex justify-between items-start">
             <h3 class="font-bold text-slate-800 text-lg group-hover:text-indigo-600 transition-colors">
-            {{ permiso.titulo }}
+                {{ permiso.titulo }}
             </h3>
+            
             <div class="flex flex-col items-end">
-                <span class="h-4 w-4 rounded-full shadow-inner dynamic-color animate-pulse" :class="estadoEstilos.circulo"></span>
+                <span class="h-4 w-4 rounded-full shadow-inner" :class="estadoEstilos.circulo"></span>
                 <span class="text-[10px] font-semibold uppercase tracking-wider mt-1" :class="estadoEstilos.colorTexto">
-                {{ estadoEstilos.texto }}
+                    {{ estadoEstilos.texto }}
                 </span>
             </div>
         </div>

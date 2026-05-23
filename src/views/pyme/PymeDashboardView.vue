@@ -32,6 +32,7 @@ const navegarACrear = () => {
                 v-for="pedido in pedidos" 
                 :key="pedido.id" 
                 :permiso="pedido" 
+                urlBase="/pyme/permisos" 
             />
         </div>
     </div>
