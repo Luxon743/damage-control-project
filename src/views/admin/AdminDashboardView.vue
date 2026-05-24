@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePermisos } from '../../composables/usePermisos'
-import TarjetaPermiso from '../../permisos/TarjetaPermiso.vue'
+import TarjetaPermiso from '../../components/permisos/TarjetaPermiso.vue'
 
 const { pedidos } = usePermisos()
 </script>

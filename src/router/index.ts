@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 // Layout principal
-import DashboardLayout from '../layout/DashboardLayout.vue';
+import DashboardLayout from '../components/layout/DashboardLayout.vue';
 
 // Vista Inicial (Selector de Rol: Pyme o Administrador)
 import HomeView from "../views/HomeView.vue";

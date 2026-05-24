@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import TarjetaPermiso from '../../permisos/TarjetaPermiso.vue'
-import BotonPrimario from '../../comunes/BotonPrimario.vue'
+import TarjetaPermiso from '../../components/permisos/TarjetaPermiso.vue'
+import BotonPrimario from '../../components/comunes/BotonPrimario.vue'
 // Importamos el puente de datos compartidos
 import { usePermisos } from '../../composables/usePermisos'
 
