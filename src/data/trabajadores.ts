@@ -1,11 +1,11 @@
 import type { Trabajador } from '@/models/Trabajador'
 
-export const trabajadores: Trabajador[] = [
+export const trabajadoresIniciales: Trabajador[] = [
     {
         id: 1,
         nombre: 'Juan Pérez',
         dni: '30111222',
-        especialidad: 'Soldador',
+        especialidad: 'Mecánico industrial',
         experiencia: 'senior',
         empresaId: 3
     },

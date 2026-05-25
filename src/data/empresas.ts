@@ -1,6 +1,6 @@
 import type { Empresa } from '@/models/Empresa'
 
-export const empresas: Empresa[] = [
+export const empresasIniciales: Empresa[] = [
     {
         id: 1,
         nombre: 'YPF',

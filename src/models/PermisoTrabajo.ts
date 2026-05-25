@@ -1,30 +1,22 @@
-export type EstadoPermiso = 'pendiente' | 'aprobado' | 'rechazado' | 'finalizado'
+export type EstadoPermiso =
+    | 'aprobado'
+    | 'pendiente'
+    | 'rechazado'
+    | 'denegado'
+    | 'finalizado'
 
-export type NivelRiesgo = 'bajo' | 'medio' | 'alto'
-
-export interface PermisoTrabajo {
-    id: number
-
-    titulo: string
+export interface VersionPedido {
     descripcion: string
+    respuestas: Record<string, string>
+    comentarioAdmin?: string
+}
 
-    empresaSolicitanteId: number
-    empresaContratanteId: number
-
-    ubicacion: string
+export interface PedidoTrabajo {
+    id: string
+    titulo: string
     fecha: string
-    horarioInicio: string
-    horarioFin: string
-
-    tipoTrabajoId: number
-    peligrosIds: number[]
-    trabajadoresIds: number[]
-
-    observaciones: string
-
+    categoria: string
     estado: EstadoPermiso
-    nivelRiesgo: NivelRiesgo
-
-    comentarioRevision?: string
-    fechaCreacion: string
+    intentosDisponibles: number
+    versiones: VersionPedido[]
 }

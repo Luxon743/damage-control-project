@@ -1,6 +1,6 @@
 import type { User } from '@/models/User'
 
-export const usuarios: User[] = [
+export const usuariosIniciales: User[] = [
     {
         id: 1,
         nombre: 'Ana Torres',

@@ -1,15 +1,15 @@
 import type { Peligro } from '@/models/Peligro'
 
-export const peligros: Peligro[] = [
+export const peligrosIniciales: Peligro[] = [
     {
         id: 1,
         nombre: 'Trabajo en altura',
-        puntaje: 3
+        puntaje: 4
     },
     {
         id: 2,
         nombre: 'Riesgo eléctrico',
-        puntaje: 4
+        puntaje: 5
     },
     {
         id: 3,
