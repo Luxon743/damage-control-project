@@ -1,105 +1,96 @@
-import { ref } from 'vue'
+import { ref } from 'vue';
+import type { PermisoTrabajo } from '../models/PermisoTrabajo';
+import { permisosIniciales } from '../data/permisos';
 
-export interface VersionPedido {
-    descripcion: string
-    respuestas: Record<string, string>
-    comentarioAdmin?: string
-}
-
-export interface PedidoTrabajo {
-    id: string
-    titulo: string
-    fecha: string
-    categoria: string
-    estado: 'aprobado' | 'pendiente' | 'rechazado' | 'denegado'
-    intentosDisponibles: number
-    versiones: VersionPedido[]
-}
-
-const pedidos = ref<PedidoTrabajo[]>([
-    {
-        id: 'T-001',
-        titulo: 'Trabajo en campo',
-        fecha: '15/05/2026',
-        categoria: 'mecanico',
-        estado: 'rechazado',
-        intentosDisponibles: 2,
-        versiones: [
-            {
-                descripcion: 'Mantenimiento de tuberias externas.',
-                respuestas: { 'pregunta5': 'respuesta14' },
-                comentarioAdmin: 'Falta especificar el tipo de resguardos perimetrales.'
-            }
-        ]
-    },
-    {
-        id: 'T-002',
-        titulo: 'Mantenimiento Electrico',
-        fecha: '18/05/2026',
-        categoria: 'electricidad',
-        estado: 'aprobado',
-        intentosDisponibles: 2,
-        versiones: [
-            {
-                descripcion: 'Cambio de transformador principal.',
-                respuestas: { 'pregunta1': 'respuesta1', 'pregunta2': 'respuesta4' }
-            }
-        ]
-    }
-])
+// Estado reactivo con los datos iniciales precargados
+const permisos = ref<PermisoTrabajo[]>([...permisosIniciales]);
 
 export function usePermisos() {
-    
-    const agregarPedido = (nuevoPedido: { titulo: string, fecha: string, descripcion: string, categoria: string, respuestas: Record<string, string> }) => {
-        const nuevoId = `T-00${pedidos.value.length + 1}`
-        
-        pedidos.value.push({
-            id: nuevoId,
-            titulo: nuevoPedido.titulo,
-            fecha: nuevoPedido.fecha,
-            categoria: nuevoPedido.categoria,
-            estado: 'pendiente',
-            intentosDisponibles: 2,
-            versiones: [{
-                descripcion: nuevoPedido.descripcion,
-                respuestas: nuevoPedido.respuestas
-            }]
-        })
-    }
+  const agregarPermiso = (datos: {
+    titulo: string;
+    descripcion: string;
+    fechaInicio: string;
+    fechaFin: string;
+    empresaSolicitante: PermisoTrabajo['empresaSolicitante'];
+    empresaContratante: PermisoTrabajo['empresaContratante'];
+    tipoTrabajo: PermisoTrabajo['tipoTrabajo'];
+    peligros: PermisoTrabajo['peligros'];
+    trabajadores: PermisoTrabajo['trabajadores'];
+    ubicacion: string;
+    respuestas: Record<string, string>;
+  }) => {
+    const nuevoId = `PT-${String(permisos.value.length + 1).padStart(3, '0')}`;
 
-    const reenviarPedido = (id: string, correccion: { descripcion: string, respuestas: Record<string, string> }) => {
-        const p = pedidos.value.find(item => item.id === id)
-        if (p && p.intentosDisponibles > 0 && p.estado === 'rechazado') {
-            p.estado = 'pendiente'
-            p.intentosDisponibles--
-            p.versiones.push({
-                descripcion: correccion.descripcion,
-                respuestas: correccion.respuestas
-            })
+    const nuevoPermiso: PermisoTrabajo = {
+      id: nuevoId,
+      titulo: datos.titulo,
+      descripcion: datos.descripcion,
+      fechaInicio: datos.fechaInicio,
+      fechaFin: datos.fechaFin,
+      empresaSolicitante: datos.empresaSolicitante,
+      empresaContratante: datos.empresaContratante,
+      tipoTrabajo: datos.tipoTrabajo,
+      peligros: datos.peligros,
+      trabajadores: datos.trabajadores,
+      ubicacion: datos.ubicacion,
+      estado: 'pendiente',
+      riesgo: 'bajo', // se recalculará en otra etapa
+      versiones: [
+        {
+          descripcion: datos.descripcion,
+          respuestas: datos.respuestas
         }
-    }
+      ],
+      intentosReenvio: 2
+    };
 
-    const evaluarPedido = (id: string, decision: 'aprobado' | 'rechazado', comentario?: string) => {
-        const p = pedidos.value.find(item => item.id === id)
-        if (p && p.estado === 'pendiente') {
-            if (decision === 'aprobado') {
-                p.estado = 'aprobado'
-            } else if (decision === 'rechazado') {
-                p.estado = p.intentosDisponibles > 0 ? 'rechazado' : 'denegado'
-                if (comentario && p.versiones && p.versiones.length > 0) {
-                    const ultimaVersion = p.versiones[p.versiones.length - 1]
-                    if (ultimaVersion) {
-                        ultimaVersion.comentarioAdmin = comentario
-                    }
-                }
-            }
+    permisos.value.push(nuevoPermiso);
+  };
+
+  const reenviarPermiso = (id: string, correccion: { descripcion: string; respuestas: Record<string, string> }) => {
+    const permiso = permisos.value.find(p => p.id === id);
+    if (permiso && permiso.estado === 'rechazado' && permiso.intentosReenvio > 0) {
+      permiso.estado = 'pendiente';
+      permiso.intentosReenvio--;
+      permiso.comentarioRechazo = undefined; // limpiamos el comentario viejo
+      permiso.versiones.push({
+        descripcion: correccion.descripcion,
+        respuestas: correccion.respuestas
+      });
+    }
+  };
+
+  const revisarPermiso = (id: string, decision: 'aprobado' | 'rechazado', comentario?: string) => {
+    const permiso = permisos.value.find(p => p.id === id);
+    if (permiso && permiso.estado === 'pendiente') {
+      if (decision === 'aprobado') {
+        permiso.estado = 'aprobado';
+      } else if (decision === 'rechazado') {
+        permiso.estado = 'rechazado';
+        if (comentario) {
+          permiso.comentarioRechazo = comentario;
+          // Agregamos el comentario a la última versión
+          if (permiso.versiones.length > 0) {
+            const ultimaVersion = permiso.versiones[permiso.versiones.length - 1]!;
+            ultimaVersion.comentarioRechazo = comentario;
+          }
         }
+      }
     }
+  };
 
-    return {
-        pedidos,
-        agregarPedido,
-        reenviarPedido,
-        evaluarPedido
+  const finalizarPermiso = (id: string) => {
+    const permiso = permisos.value.find(p => p.id === id);
+    if (permiso && permiso.estado === 'aprobado') {
+      permiso.estado = 'finalizado';
     }
+  };
+
+  return {
+    permisos,
+    agregarPermiso,
+    reenviarPermiso,
+    revisarPermiso,
+    finalizarPermiso
+  };
 }
