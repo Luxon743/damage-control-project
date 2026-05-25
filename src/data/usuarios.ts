@@ -1,22 +1,33 @@
-import type { User } from '@/models/User'
+import type { Usuario } from '../models/Usuario';
 
-export const usuariosIniciales: User[] = [
+//datos iniciales
+export const usuarios: Usuario[] = [
     {
-        id: 1,
-        nombre: 'Ana Torres',
-        email: 'ana.torres@ypf.com',
-        rol: 'admin'
+        id: 'usr-1',
+        nombre: 'Adrián López',
+        email: 'adrian.lopez@admin.com',
+        rol: 'admin',
+        empresaId: 'emp-1'
     },
     {
-        id: 2,
-        nombre: 'Carlos Méndez',
-        email: 'carlos.mendez@pymeindustrial.com',
-        rol: 'pyme'
+        id: 'usr-2',
+        nombre: 'Soledad Martínez',
+        email: 'soledad.martinez@pyme.com',
+        rol: 'pyme',
+        empresaId: 'emp-4'
     },
     {
-        id: 3,
-        nombre: 'Lucía Fernández',
-        email: 'lucia.fernandez@tecpetrol.com',
-        rol: 'admin'
+        id: 'usr-3',
+        nombre: 'Diego Torres',
+        email: 'diego.torres@pyme.com',
+        rol: 'pyme',
+        empresaId: 'emp-5'
+    },
+    {
+        id: 'usr-4',
+        nombre: 'Natalia Castro',
+        email: 'natalia.castro@pyme.com',
+        rol: 'pyme',
+        empresaId: 'emp-6'
     }
-]
+];
