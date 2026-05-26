@@ -1,222 +1,92 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, computed } from 'vue'
+import type { PermisoTrabajo, EstadoPermiso, NivelRiesgo } from '../../models/PermisoTrabajo'
+import { empresas } from '../../data/empresas'
+import { tiposTrabajo } from '../../data/tiposTrabajo'
 
-// Define cómo se ve el objeto de filtros
-// query: texto de búsqueda
-// estado: filtro por estado
-// categoria: filtro por categoría
-type Filtros = {
-  query?: string
-  estado?: string
-  categoria?: string
-}
-
-// Props que recibe el componente desde el padre
 const props = defineProps<{
-  categorias?: string[] // lista de categorías que puede pasar el padre
-  modelValue?: Filtros // valor para usar con v-model
+  permisos: PermisoTrabajo[]
 }>()
 
-// Eventos que puede emitir el componente hacia el padre
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: Filtros): void // para v-model
-  (e: 'apply', value: Filtros): void // cuando se aplican filtros
-  (e: 'clear'): void // cuando se limpian filtros
+  (e: 'update:filtrados', valor: PermisoTrabajo[]): void
 }>()
 
-// Controla si el panel está abierto o cerrado
-const showPanel = ref(false)
+const estadoFiltro = ref<EstadoPermiso | ''>('')
+const riesgoFiltro = ref<NivelRiesgo | ''>('')
+const empresaFiltro = ref('')
+const tipoTrabajoFiltro = ref('')
+const textoBusqueda = ref('')
 
-// Categorías por defecto en caso de que el padre no envíe ninguna
-const defaultCategorias = ['mecanico', 'electricidad', 'izaje']
+const permisosFiltrados = computed(() => {
+  let resultado = props.permisos
 
-// Lista computada de categorías usada en el select
-const categorias = computed(() => props.categorias ?? defaultCategorias)
+  if (estadoFiltro.value) {
+    resultado = resultado.filter(p => p.estado === estadoFiltro.value)
+  }
+  if (riesgoFiltro.value) {
+    resultado = resultado.filter(p => p.riesgo === riesgoFiltro.value)
+  }
+  if (empresaFiltro.value) {
+    resultado = resultado.filter(
+      p =>
+        p.empresaSolicitante.id === empresaFiltro.value ||
+        p.empresaContratante.id === empresaFiltro.value
+    )
+  }
+  if (tipoTrabajoFiltro.value) {
+    resultado = resultado.filter(p => p.tipoTrabajo.id === tipoTrabajoFiltro.value)
+  }
+  if (textoBusqueda.value.trim()) {
+    const busqueda = textoBusqueda.value.toLowerCase()
+    resultado = resultado.filter(
+      p =>
+        p.titulo.toLowerCase().includes(busqueda) ||
+        p.descripcion.toLowerCase().includes(busqueda) ||
+        p.id.toLowerCase().includes(busqueda)
+    )
+  }
 
-// Copia local de los filtros para editar sin actualizar al padre inmediatamente
-const localFilters = ref<Filtros>({
-  query: props.modelValue?.query ?? '',
-  estado: props.modelValue?.estado ?? '',
-  categoria: props.modelValue?.categoria ?? ''
+  return resultado
 })
 
-// Si el valor del padre cambia, sincronizamos los filtros locales
-watch(
-  () => props.modelValue,
-  (value) => {
-    localFilters.value = {
-      query: value?.query ?? '',
-      estado: value?.estado ?? '',
-      categoria: value?.categoria ?? ''
-    }
-  },
-  { deep: true }
-)
-
-// Opciones fijas de estado para el select
-const estados = [
-  { value: 'pendiente', label: 'Pendiente' },
-  { value: 'aprobado', label: 'Aprobado' },
-  { value: 'rechazado', label: 'Rechazado' },
-  { value: 'denegado', label: 'Denegado' },
-  { value: 'finalizado', label: 'Finalizado' }
-]
-
-// Cambia showPanel entre true y false
-const togglePanel = () => {
-  showPanel.value = !showPanel.value
-}
-
-// Envía el filtro actual al padre
-const applyFilters = () => {
-  emit('update:modelValue', { ...localFilters.value })
-  emit('apply', { ...localFilters.value })
-}
-
-// Limpia los filtros y avisa al padre
-const clearFilters = () => {
-  localFilters.value = { query: '', estado: '', categoria: '' }
-  emit('update:modelValue', { ...localFilters.value })
-  emit('clear')
-}
+// Emitir los resultados filtrados cada vez que cambien
+import { watchEffect } from 'vue'
+watchEffect(() => {
+  emit('update:filtrados', permisosFiltrados.value)
+})
 </script>
 
 <template>
-  <div class="filtros-permisos">
-    <!-- Botón para mostrar u ocultar el panel de filtros -->
-    <button type="button" class="toggle-button" @click="togglePanel">
-      {{ showPanel ? 'Ocultar filtros' : 'Mostrar filtros' }}
-    </button>
-
-    <!-- El panel de filtros solo se ve cuando showPanel es true -->
-    <div v-if="showPanel" class="panel">
-      <div class="panel-row">
-        <label>
-          Buscar
-          <!-- Búsqueda libre: título, ID o descripción -->
-          <input
-            type="text"
-            v-model="localFilters.query"
-            placeholder="Buscar por título, ID o descripción..."
-          />
-        </label>
-      </div>
-
-      <div class="panel-row">
-        <label>
-          Estado
-          <select v-model="localFilters.estado">
-            <option value="">Todos</option>
-            <!-- Genera opciones desde la lista de estados -->
-            <option v-for="item in estados" :key="item.value" :value="item.value">
-              {{ item.label }}
-            </option>
-          </select>
-        </label>
-
-        <label>
-          Categoría
-          <select v-model="localFilters.categoria">
-            <option value="">Todas</option>
-            <!-- Genera opciones de categoría según la lista disponible -->
-            <option v-for="categoria in categorias" :key="categoria" :value="categoria">
-              {{ categoria }}
-            </option>
-          </select>
-        </label>
-      </div>
-
-      <div class="actions">
-        <!-- Aplica los filtros actuales -->
-        <button type="button" class="apply-button" @click="applyFilters">
-          Aplicar
-        </button>
-        <!-- Limpia todos los filtros -->
-        <button type="button" class="clear-button" @click="clearFilters">
-          Borrar
-        </button>
-      </div>
+  <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <input
+        v-model="textoBusqueda"
+        type="text"
+        placeholder="Buscar..."
+        class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 outline-none"
+      />
+      <select v-model="estadoFiltro" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="aprobado">Aprobado</option>
+        <option value="rechazado">Rechazado</option>
+        <option value="finalizado">Finalizado</option>
+      </select>
+      <select v-model="riesgoFiltro" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm">
+        <option value="">Todos los riesgos</option>
+        <option value="bajo">Bajo</option>
+        <option value="medio">Medio</option>
+        <option value="alto">Alto</option>
+      </select>
+      <select v-model="empresaFiltro" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm">
+        <option value="">Todas las empresas</option>
+        <option v-for="emp in empresas" :key="emp.id" :value="emp.id">{{ emp.nombre }}</option>
+      </select>
+      <select v-model="tipoTrabajoFiltro" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm">
+        <option value="">Todos los tipos</option>
+        <option v-for="tipo in tiposTrabajo" :key="tipo.id" :value="tipo.id">{{ tipo.nombre }}</option>
+      </select>
     </div>
   </div>
 </template>
-
-
-
-<style scoped>
-/* Contenedor principal del componente */
-.filtros-permisos {
-  margin-bottom: 1.25rem;
-}
-
-/* Estilo para los botones del panel */
-.toggle-button,
-.apply-button,
-.clear-button {
-  border: none;
-  cursor: pointer;
-  border-radius: 0.75rem;
-  padding: 0.75rem 1.15rem;
-  font-weight: 700;
-}
-
-.toggle-button {
-  background-color: #2563eb;
-  color: white;
-}
-
-/* Panel blanco con sombra */
-.panel {
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 1rem;
-  background: white;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
-}
-
-/* Filas de campos en el panel */
-.panel-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-/* Estilo de cada etiqueta y campo */
-.panel-row label {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 220px;
-  min-width: 180px;
-  font-size: 0.95rem;
-  color: #334155;
-}
-
-/* Inputs y selects con fondo suave */
-.panel-row input,
-.panel-row select {
-  margin-top: 0.5rem;
-  padding: 0.75rem 0.9rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 0.65rem;
-  background: #f8fafc;
-  color: #0f172a;
-}
-
-/* Alinea los botones de acción */
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.apply-button {
-  background-color: #2563eb;
-  color: white;
-}
-
-.clear-button {
-  background-color: #e2e8f0;
-  color: #0f172a;
-}
-</style>
