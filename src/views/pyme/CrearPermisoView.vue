@@ -141,7 +141,7 @@ const enviarPermiso = () => {
       respuestas: respuestas.value
     })
   } else {
-    agregarPermiso({
+    const permisoAAgregar = {
       titulo: titulo.value,
       descripcion: descripcion.value,
       fechaInicio: fecha.value.split('-').reverse().join('/'),
@@ -153,7 +153,9 @@ const enviarPermiso = () => {
       trabajadores: trabajadoresSeleccionados,
       ubicacion: 'A definir',
       respuestas: respuestas.value
-    })
+    } as any
+
+    agregarPermiso(permisoAAgregar)
   }
 
   router.push('/pyme')

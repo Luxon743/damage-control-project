@@ -6,21 +6,8 @@ import { permisosIniciales } from '../data/permisos';
 const permisos = ref<PermisoTrabajo[]>([...permisosIniciales]);
 
 export function usePermisos() {
-  const agregarPermiso = (datos: {
-    titulo: string;
-    descripcion: string;
-    fechaInicio: string;
-    fechaFin: string;
-    empresaSolicitante: PermisoTrabajo['empresaSolicitante'];
-    empresaContratante: PermisoTrabajo['empresaContratante'];
-    tipoTrabajo: PermisoTrabajo['tipoTrabajo'];
-    peligros: PermisoTrabajo['peligros'];
-    trabajadores: PermisoTrabajo['trabajadores'];
-    ubicacion: string;
-    respuestas: Record<string, string>;
-  }) => {
+  const agregarPermiso = (datos: Omit<PermisoTrabajo, 'id' | 'estado' | 'versiones' | 'intentosReenvio'>) => {
     const nuevoId = `PT-${String(permisos.value.length + 1).padStart(3, '0')}`;
-
     const nuevoPermiso: PermisoTrabajo = {
       id: nuevoId,
       titulo: datos.titulo,
@@ -34,16 +21,15 @@ export function usePermisos() {
       trabajadores: datos.trabajadores,
       ubicacion: datos.ubicacion,
       estado: 'pendiente',
-      riesgo: 'bajo', // se recalculará en otra etapa
+      riesgo: datos.riesgo,
       versiones: [
         {
           descripcion: datos.descripcion,
-          respuestas: datos.respuestas
+          respuestas: {} // Ya no se usan las preguntas viejas, queda vacío
         }
       ],
       intentosReenvio: 2
     };
-
     permisos.value.push(nuevoPermiso);
   };
 
