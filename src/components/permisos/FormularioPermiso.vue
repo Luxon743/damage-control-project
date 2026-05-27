@@ -7,8 +7,6 @@ import SelectorPeligros from './SelectorPeligros.vue'
 import SelectorTrabajadores from './SelectorTrabajadores.vue'
 import BotonPrimario from '../comunes/BotonPrimario.vue'
 import type { PermisoTrabajo } from '../../models/PermisoTrabajo'
-import type { Empresa } from '../../models/Empresa'
-import type { TipoTrabajo } from '../../models/TipoTrabajo'
 import type { Peligro } from '../../models/Peligro'
 import type { Trabajador } from '../../models/Trabajador'
 import { empresas } from '../../data/empresas'
@@ -34,13 +32,13 @@ const trabajadoresSeleccionados = ref<Trabajador[]>([])
 const errores = ref<string[]>([])
 
 // Opciones para los select
-const empresasContratistas = computed<{ id: string; texto: string }[]>(() =>
+const empresasContratistas = computed(() =>
   empresas.filter(e => e.tipoEmpresa === 'contratista').map(e => ({ id: e.id, texto: e.nombre }))
 )
-const empresasContratantes = computed<{ id: string; texto: string }[]>(() =>
+const empresasContratantes = computed(() =>
   empresas.filter(e => e.tipoEmpresa === 'contratante').map(e => ({ id: e.id, texto: e.nombre }))
 )
-const tiposTrabajoOpciones = computed<{ id: string; texto: string }[]>(() =>
+const tiposTrabajoOpciones = computed(() =>
   tiposTrabajo.map(t => ({ id: t.id, texto: `${t.nombre} (riesgo +${t.puntajeRiesgo})` }))
 )
 
@@ -93,8 +91,7 @@ const enviar = () => {
     tipoTrabajo,
     peligros: peligrosSeleccionados.value,
     trabajadores: trabajadoresSeleccionados.value,
-    riesgo,
-    comentarioRechazo: undefined
+    riesgo
   })
 }
 </script>
@@ -103,8 +100,8 @@ const enviar = () => {
   <form @submit.prevent="enviar" class="space-y-6">
     <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-inner space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Aquí cambiamos v-model por v-model:modelo -->
-        <InputTexto v-model:modelo="titulo" etiqueta="Título del trabajo" obligatorio placeholder="Ej: Mantenimiento de torre" />
+        <InputTexto v-model:modelo="titulo" etiqueta="Título del trabajo" obligatorio
+          placeholder="Ej: Mantenimiento de torre" />
         <InputTexto v-model:modelo="ubicacion" etiqueta="Ubicación / Sector" />
         <InputTexto v-model:modelo="fechaInicio" tipo="date" etiqueta="Fecha inicio" obligatorio />
         <InputTexto v-model:modelo="fechaFin" tipo="date" etiqueta="Fecha fin" obligatorio />
@@ -113,41 +110,26 @@ const enviar = () => {
       <TextAreaInput v-model:modelo="descripcion" etiqueta="Descripción de la tarea" />
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <SelectInput
-          v-model:modelo="empresaSolicitanteId"
-          :opciones="empresasContratistas"
-          etiqueta="Empresa solicitante (PyME)"
-          obligatorio
-        />
-        <SelectInput
-          v-model:modelo="empresaContratanteId"
-          :opciones="empresasContratantes"
-          etiqueta="Empresa contratante"
-          obligatorio
-        />
+        <SelectInput v-model:modelo="empresaSolicitanteId" :opciones="empresasContratistas"
+          etiqueta="Empresa solicitante (PyME)" obligatorio />
+        <SelectInput v-model:modelo="empresaContratanteId" :opciones="empresasContratantes"
+          etiqueta="Empresa contratante" obligatorio />
       </div>
 
-      <SelectInput
-        v-model:modelo="tipoTrabajoId"
-        :opciones="tiposTrabajoOpciones"
-        etiqueta="Tipo de trabajo"
-        obligatorio
-      />
+      <SelectInput v-model:modelo="tipoTrabajoId" :opciones="tiposTrabajoOpciones" etiqueta="Tipo de trabajo"
+        obligatorio />
 
       <SelectorPeligros v-model:seleccionados="peligrosSeleccionados" />
       <SelectorTrabajadores v-model:seleccionados="trabajadoresSeleccionados" />
 
       <!-- Riesgo calculado -->
-      <div class="text-center mt-4" v-if="riesgoCalculado">
+      <div v-if="riesgoCalculado" class="text-center mt-4">
         <span class="text-xs font-black uppercase text-slate-500">Riesgo calculado:</span>
-        <span
-          class="ml-2 text-lg font-bold uppercase"
-          :class="{
-            'text-emerald-600': riesgoCalculado === 'bajo',
-            'text-amber-600': riesgoCalculado === 'medio',
-            'text-rose-600': riesgoCalculado === 'alto'
-          }"
-        >
+        <span class="ml-2 text-lg font-bold uppercase" :class="{
+          'text-emerald-600': riesgoCalculado === 'bajo',
+          'text-amber-600': riesgoCalculado === 'medio',
+          'text-rose-600': riesgoCalculado === 'alto'
+        }">
           {{ riesgoTexto }}
         </span>
       </div>
@@ -160,7 +142,8 @@ const enviar = () => {
       </div>
 
       <div class="flex justify-end pt-4 gap-3">
-        <button type="button" @click="$emit('cancelar')" class="px-6 py-3 rounded-lg border-2 border-slate-300 text-xs font-bold uppercase hover:bg-slate-100 transition">
+        <button type="button" @click="$emit('cancelar')"
+          class="px-6 py-3 rounded-lg border-2 border-slate-300 text-xs font-bold uppercase hover:bg-slate-100 transition">
           Cancelar
         </button>
         <BotonPrimario type="submit">
