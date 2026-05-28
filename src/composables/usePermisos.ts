@@ -25,7 +25,7 @@ export function usePermisos() {
       versiones: [
         {
           descripcion: datos.descripcion,
-          respuestas: {} // Ya no se usan las preguntas viejas, queda vacío
+          respuestas: {}
         }
       ],
       intentosReenvio: 2

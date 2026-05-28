@@ -80,7 +80,7 @@ export const permisosIniciales: PermisoTrabajo[] = [
         comentarioRechazo: 'Falta especificar procedimiento de bloqueo y etiquetado (LOTO)'
       }
     ],
-    intentosReenvio: 1
+    intentosReenvio: 2
   },
   {
     id: 'PT-004',
