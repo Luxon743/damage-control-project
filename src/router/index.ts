@@ -39,81 +39,87 @@ const router = createRouter({
             path: '/',
             component: DashboardLayout,
             children: [
-            // Sector de "Pyme"
-            {
-                path: 'pyme',
-                name: 'pyme-dashboard',
-                component: PymeDashboardView
-            },
-            {
-                path: 'pyme/permisos',
-                name: 'pyme-mis-permisos',
-                component: MisPermisosView
-            },
-            {
-                path: 'pyme/permisos/crear',
-                name: 'pyme-crear-permiso',
-                component: CrearPermisoView
-            },
-            {
-                path: 'pyme/permisos/:id',
-                name: 'pyme-detalle-permiso',
-                component: DetallePermisoPymeView,
-                props: true
-            },
-            {
-                path: 'pyme/permisos/:id/editar',
-                name: 'pyme-editar-permiso',
-                component: EditarPermisoView,
-                props: true
-            },
+                // Sector de "Pyme"
+                {
+                    path: 'pyme',
+                    name: 'pyme-dashboard',
+                    component: PymeDashboardView,
+                    redirect: { name: 'mis-permisos' }, 
+                    children: [
+                        {
+                            path: 'permisos',
+                            name: 'mis-permisos',
+                            component: MisPermisosView
+                        },
+                        {
+                            path: 'permisos/crear',
+                            name: 'crear-permiso',
+                            component: CrearPermisoView
+                        },
+                        {
+                            path: 'permisos/:id',
+                            name: 'detalle-permiso',
+                            component: DetallePermisoPymeView,
+                            props: true
+                        },
+                        {
+                            path: 'permisos/:id/editar',
+                            name: 'editar-permiso',
+                            component: EditarPermisoView,
+                            props: true
+                        }
+                    ]
+                },
 
-            // Sector del "Administrador"
-            {
-                path: 'admin',
-                name: 'admin-dashboard',
-                component: AdminDashboardView
-            },
-            {
-                path: 'admin/solicitudes',
-                name: 'admin-solicitudes',
-                component: SolicitudesView
-            },
-            {
-                path: 'admin/solicitudes/:id',
-                name: 'admin-detalle-solicitud',
-                component: DetalleSolicitudView,
-                props: true
-            },
-            {
-                path: 'admin/historial',
-                name: 'admin-historial',
-                component: HistorialPermisosView
-            },
+                // Sector del "Administrador"
+                {
+                    path: 'admin',
+                    name: 'admin-dashboard',
+                    component: AdminDashboardView,
+                    redirect: { name: 'solicitudes' }, 
+                    children: [
+                        {
+                            path: 'solicitudes',
+                            name: 'solicitudes',
+                            component: SolicitudesView
+                        },
+                        {
+                            path: 'solicitudes/:id',
+                            name: 'detalle-solicitud',
+                            component: DetalleSolicitudView,
+                            props: true
+                        },
+                        {
+                            path: 'historial',
+                            name: 'historial',
+                            component: HistorialPermisosView
+                        },
+                    ]
+                },
 
-            // Apartado de Usuarios
-            {
-                path: 'usuarios',
-                name: 'user-list',
-                component: UserListView
-            },
-            {
-                path: 'usuarios/crear',
-                name: 'user-create',
-                component: UserCreateView
-            },
-            {
-                path: 'usuarios/:id',
-                name: 'user-detail',
-                component: UserDetailView,
-                props: true
-            },
-            {
-                path: 'usuarios/:id/editar',
-                name: 'user-edit',
-                component: UserEditView,
-                props: true
-            }
+                // Apartado de Usuarios
+                {
+                    path: 'usuarios',
+                    name: 'user-list',
+                    component: UserListView
+                },
+                {
+                    path: 'usuarios/crear',
+                    name: 'user-create',
+                    component: UserCreateView
+                },
+                {
+                    path: 'usuarios/:id',
+                    name: 'user-detail',
+                    component: UserDetailView,
+                    props: true
+                },
+                {
+                    path: 'usuarios/:id/editar',
+                    name: 'user-edit',
+                    component: UserEditView,
+                    props: true
+                }
             ]
         },
 
@@ -125,4 +131,4 @@ const router = createRouter({
     ]
 })
 
-export default router
+export default router;

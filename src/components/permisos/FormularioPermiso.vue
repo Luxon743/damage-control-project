@@ -143,10 +143,11 @@ const enviar = () => {
 
       <div class="flex justify-end pt-4 gap-3">
         <button type="button" @click="$emit('cancelar')"
-          class="px-6 py-3 rounded-lg border-2 border-slate-300 text-xs font-bold uppercase hover:bg-slate-100 transition">
+          class="px-6 py-3 rounded-lg border-2 border-slate-300 text-xs font-bold uppercase hover:bg-slate-100 transition cursor-pointer">
           Cancelar
         </button>
-        <BotonPrimario type="submit">
+  
+        <BotonPrimario type="button" @click="enviar" class="cursor-pointer">
           Enviar solicitud
         </BotonPrimario>
       </div>
