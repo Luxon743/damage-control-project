@@ -16,10 +16,12 @@ const permiso = computed(() =>
     permisos.value.find((p: PermisoTrabajo) => p.id === idPermiso)
 )
 
-const manejarSubmit = (datos: Omit<PermisoTrabajo, 'id' | 'estado' | 'versiones' | 'intentosReenvio'>) => {
+const manejarSubmit = (datos: Omit<PermisoTrabajo, 'id' | 'estado' | 'versiones' | 'intentosReenvio'> & { respuestas: Record<string, string> }) => {
     reenviarPermiso(idPermiso, {
         descripcion: datos.descripcion,
-        respuestas: (datos as any).respuestas || {} 
+        respuestas: datos.respuestas || {},
+        peligros: datos.peligros,
+        trabajadores: datos.trabajadores
     })
     
     router.push({ name: 'mis-permisos' })
