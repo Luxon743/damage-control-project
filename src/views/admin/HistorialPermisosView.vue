@@ -29,19 +29,22 @@ const cambiarPestana = (estado: EstadoPermiso | 'todos') => {
             </div>
         </div>
 
-        <!-- Pestañas de filtro por estado -->
         <div class="flex flex-wrap gap-2">
             <button v-for="estado in ['todos', 'pendiente', 'aprobado', 'rechazado', 'finalizado'] as const"
                 :key="estado" @click="cambiarPestana(estado)"
                 :class="pestanaActiva === estado ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
-                class="px-4 py-2 rounded-full border text-xs font-bold uppercase transition">
+                class="px-4 py-2 rounded-full border text-xs font-bold uppercase transition cursor-pointer">
                 {{ estado === 'todos' ? 'Todos' : estado }}
             </button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <TarjetaPermiso v-for="permiso in permisosFiltrados" :key="permiso.id" :permiso="permiso"
-                urlBase="/admin/solicitudes" />
+            <TarjetaPermiso 
+                v-for="permiso in permisosFiltrados" 
+                :key="permiso.id" 
+                :permiso="permiso"
+                nombreRutaDetalle="detalle-solicitud" 
+            />
         </div>
 
         <div v-if="permisosFiltrados.length === 0" class="text-center py-20">

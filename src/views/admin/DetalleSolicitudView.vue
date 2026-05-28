@@ -43,7 +43,8 @@ const bancoPreguntas: Record<string, Record<string, { req: string; res: Record<s
 const confirmarAprobacion = () => {
     if (confirm('¿Estas seguro de aprobar este permiso de trabajo?')) {
         revisarPermiso(idPermiso, 'aprobado')
-        router.push('/admin/solicitudes')
+        
+        router.push({ name: 'solicitudes' })
     }
 }
 
@@ -53,13 +54,14 @@ const confirmarRechazo = () => {
         return
     }
     revisarPermiso(idPermiso, 'rechazado', comentarioRechazo.value)
-    router.push('/admin/solicitudes')
+    
+    router.push({ name: 'solicitudes' })
 }
 
 const confirmarFinalizacion = () => {
     if (confirm('¿Estas seguro de finalizar este permiso? Una vez finalizado no podrá editarse.')) {
         finalizarPermiso(idPermiso)
-        router.push('/admin/solicitudes')
+        router.push({ name: 'solicitudes' })
     }
 }
 </script>
@@ -77,8 +79,9 @@ const confirmarFinalizacion = () => {
                 </div>
                 <p class="text-sm text-slate-500 mt-1">Revision del analisis de riesgo y condiciones declaradas.</p>
             </div>
-            <button @click="router.push('/admin/solicitudes')"
-                class="px-5 py-2 rounded-full border-2 border-slate-300 text-xs font-bold uppercase hover:bg-slate-50 transition">
+            
+            <button @click="router.push({ name: 'solicitudes' })"
+                class="px-5 py-2 rounded-full border-2 border-slate-300 text-xs font-bold uppercase hover:bg-slate-50 transition cursor-pointer">
                 Volver
             </button>
         </div>
@@ -141,17 +144,15 @@ const confirmarFinalizacion = () => {
                 </div>
             </div>
 
-            <!-- Botones de acción -->
             <div class="mt-8 pt-6 border-t-2 border-slate-200 space-y-4">
-                <!-- Permiso pendiente: aprobar/rechazar -->
                 <div v-if="permiso.estado === 'pendiente' && indiceVersionSeleccionada === totalVersiones - 1">
                     <div v-if="!modoRechazo" class="flex items-center justify-end gap-4">
                         <button @click="modoRechazo = true"
-                            class="px-8 py-3 rounded-xl border-2 border-rose-200 text-rose-600 text-xs font-black uppercase tracking-widest hover:bg-rose-50 hover:border-rose-300 transition">
+                            class="px-8 py-3 rounded-xl border-2 border-rose-200 text-rose-600 text-xs font-black uppercase tracking-widest hover:bg-rose-50 hover:border-rose-300 transition cursor-pointer">
                             Rechazar Permiso
                         </button>
                         <button @click="confirmarAprobacion"
-                            class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest px-8 py-3.5 rounded-xl shadow-md transition-transform hover:scale-105">
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest px-8 py-3.5 rounded-xl shadow-md transition-transform hover:scale-105 cursor-pointer">
                             Aprobar Trabajo
                         </button>
                     </div>
@@ -165,33 +166,30 @@ const confirmarFinalizacion = () => {
 
                         <div class="flex justify-end gap-3 pt-2">
                             <button @click="modoRechazo = false"
-                                class="px-6 py-2.5 rounded-lg border-2 border-slate-300 text-slate-500 text-xs font-bold uppercase hover:bg-white transition">
+                                class="px-6 py-2.5 rounded-lg border-2 border-slate-300 text-slate-500 text-xs font-bold uppercase hover:bg-white transition cursor-pointer">
                                 Cancelar
                             </button>
                             <button @click="confirmarRechazo"
-                                class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-black uppercase tracking-widest px-8 py-3 rounded-lg shadow-md transition">
+                                class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-black uppercase tracking-widest px-8 py-3 rounded-lg shadow-md transition cursor-pointer">
                                 Confirmar Rechazo
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Permiso aprobado: botón finalizar -->
                 <div v-if="permiso.estado === 'aprobado'" class="flex justify-end">
                     <button @click="confirmarFinalizacion"
-                        class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest px-8 py-3 rounded-xl shadow-md transition-transform hover:scale-105">
+                        class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest px-8 py-3 rounded-xl shadow-md transition-transform hover:scale-105 cursor-pointer">
                         Finalizar Permiso
                     </button>
                 </div>
 
-                <!-- Permiso finalizado: mensaje -->
                 <div v-if="permiso.estado === 'finalizado'" class="flex justify-end">
                     <span class="bg-blue-100 text-blue-700 text-xs font-bold uppercase px-4 py-2 rounded-full">
                         Trabajo finalizado
                     </span>
                 </div>
 
-                <!-- Permiso rechazado: indicación -->
                 <div v-if="permiso.estado === 'rechazado'" class="flex justify-end">
                     <span class="bg-amber-100 text-amber-700 text-xs font-bold uppercase px-4 py-2 rounded-full">
                         Rechazado - Esperando corrección
