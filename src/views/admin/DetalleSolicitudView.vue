@@ -26,24 +26,9 @@ const versionActual = computed(() => {
     return versionesSeguras.value[indiceVersionSeleccionada.value]
 })
 
-const bancoPreguntas: Record<string, Record<string, { req: string; res: Record<string, string> }>> = {
-    'electricidad': {
-        'pregunta1': { req: 'Estado de herramientas y equipos', res: { 'respuesta1': 'Nuevas con certificacion vigente', 'respuesta2': 'Buen estado pero sin certificacion', 'respuesta3': 'Herramientas manuales sin aislacion' } },
-        'pregunta2': { req: 'Distancia a lineas de tension', res: { 'respuesta4': 'Fuera de la zona de peligro (> 5m)', 'respuesta5': 'Zona de proximidad controlada', 'respuesta6': 'Contacto directo con conductores' } }
-    },
-    'altura': {
-        'pregunta3': { req: 'Altura de la tarea a realizar', res: { 'respuesta7': 'Menor a 2 metros', 'respuesta8': 'Entre 2 y 6 metros', 'respuesta9': 'Mas de 6 metros (Gran altura)' } },
-        'pregunta4': { req: 'Tipo de sistema anticaidas', res: { 'respuesta10': 'Arnes completo con doble cola y anclaje fijo', 'respuesta11': 'Cinturon de posicionamiento simple', 'respuesta12': 'Sin elementos de sujecion' } }
-    },
-    'mecanico': {
-        'pregunta5': { req: 'Protecciones en maquinaria', res: { 'respuesta13': 'Protecciones fijas y enclavamientos OK', 'respuesta14': 'Protecciones removidas por mantenimiento', 'respuesta15': 'Maquina sin resguardos de fabrica' } }
-    }
-}
-
 const confirmarAprobacion = () => {
     if (confirm('¿Estas seguro de aprobar este permiso de trabajo?')) {
         revisarPermiso(idPermiso, 'aprobado')
-        
         router.push({ name: 'solicitudes' })
     }
 }
@@ -54,7 +39,6 @@ const confirmarRechazo = () => {
         return
     }
     revisarPermiso(idPermiso, 'rechazado', comentarioRechazo.value)
-    
     router.push({ name: 'solicitudes' })
 }
 
@@ -68,14 +52,11 @@ const confirmarFinalizacion = () => {
 
 <template>
     <div v-if="permiso && versionActual" class="max-w-5xl mx-auto space-y-6">
-        <div
-            class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b-2 border-slate-200 pb-4 gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b-2 border-slate-200 pb-4 gap-4">
             <div>
                 <div class="flex items-center gap-3">
-                    <h1 class="text-xl font-black text-slate-800 uppercase tracking-wide">Auditoria {{ permiso.id }}
-                    </h1>
-                    <span class="text-[10px] font-bold text-white bg-slate-800 px-2 py-0.5 rounded-md uppercase">Modo
-                        Admin</span>
+                    <h1 class="text-xl font-black text-slate-800 uppercase tracking-wide">Auditoria {{ permiso.id }}</h1>
+                    <span class="text-[10px] font-bold text-white bg-slate-800 px-2 py-0.5 rounded-md uppercase">Modo Admin</span>
                 </div>
                 <p class="text-sm text-slate-500 mt-1">Revision del analisis de riesgo y condiciones declaradas.</p>
             </div>
@@ -113,23 +94,25 @@ const confirmarFinalizacion = () => {
                 </p>
             </div>
 
-            <div class="space-y-4">
-                <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Controles Seleccionados</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-50 border-2 border-slate-100 p-5 rounded-2xl">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3">Peligros Identificados</h4>
+                    <ul class="space-y-2">
+                        <li v-for="p in versionActual.peligros" :key="p.id" class="text-xs font-bold text-slate-600 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm flex items-center gap-2">
+                            {{ p.nombre }}
+                        </li>
+                        <li v-if="!versionActual.peligros?.length" class="text-xs text-slate-400 italic">No se declararon peligros en esta versión.</li>
+                    </ul>
+                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div v-for="(opcionId, preId) in versionActual.respuestas" :key="preId"
-                        class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 flex flex-col justify-between">
-                        <h5 class="text-xs font-black uppercase text-slate-500 tracking-wide mb-2">
-                            {{ bancoPreguntas[permiso.tipoTrabajo.nombre.toLowerCase()]?.[preId]?.req ?? preId }}
-                        </h5>
-                        <div class="flex items-center gap-2.5 bg-emerald-50 border border-emerald-200 p-3 rounded-xl">
-                            <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></span>
-                            <span class="text-sm font-semibold text-emerald-800">
-                                {{ bancoPreguntas[permiso.tipoTrabajo.nombre.toLowerCase()]?.[preId]?.res[opcionId] ??
-                                opcionId }}
-                            </span>
-                        </div>
-                    </div>
+                <div class="bg-slate-50 border-2 border-slate-100 p-5 rounded-2xl">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3">Personal Asignado</h4>
+                    <ul class="space-y-2">
+                        <li v-for="t in versionActual.trabajadores" :key="t.id" class="text-xs font-bold text-slate-600 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm flex items-center gap-2">
+                            {{ t.nombre }}
+                        </li>
+                        <li v-if="!versionActual.trabajadores?.length" class="text-xs text-slate-400 italic">No se asignó personal en esta versión.</li>
+                    </ul>
                 </div>
             </div>
 
@@ -158,8 +141,7 @@ const confirmarFinalizacion = () => {
                     </div>
 
                     <div v-else class="bg-rose-50 border-2 border-rose-200 p-6 rounded-2xl space-y-4">
-                        <h5 class="text-sm font-black uppercase text-rose-700 tracking-wide">Indicar motivo de rechazo
-                            obligatoriamente</h5>
+                        <h5 class="text-sm font-black uppercase text-rose-700 tracking-wide">Indicar motivo de rechazo obligatoriamente</h5>
                         <textarea v-model="comentarioRechazo" rows="3"
                             placeholder="Detalla los cambios o medidas de seguridad faltantes..."
                             class="w-full bg-white border-2 border-rose-200 rounded-xl px-4 py-3 focus:border-rose-400 outline-none transition text-sm shadow-sm"></textarea>
