@@ -5,7 +5,7 @@ import type { PermisoTrabajo } from '../../models/PermisoTrabajo'
 
 const props = defineProps<{
     permiso: PermisoTrabajo
-    urlBase: string
+    nombreRutaDetalle: string 
 }>()
 
 const router = useRouter()
@@ -36,7 +36,10 @@ const riesgoEstilos = computed(() => {
 })
 
 const irAlDetalle = () => {
-    router.push(`${props.urlBase}/${props.permiso.id}`)
+    router.push({ 
+        name: props.nombreRutaDetalle, 
+        params: { id: props.permiso.id } 
+    })
 }
 </script>
 

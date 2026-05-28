@@ -9,11 +9,11 @@ const { agregarPermiso } = usePermisos()
 
 const manejarSubmit = (datos: Omit<PermisoTrabajo, 'id' | 'estado' | 'versiones' | 'intentosReenvio'>) => {
   agregarPermiso(datos)
-  router.push('/pyme')
+  router.push({ name: 'mis-permisos' })
 }
 
 const cancelar = () => {
-  router.push('/pyme')
+  router.push({ name: 'mis-permisos' })
 }
 </script>
 

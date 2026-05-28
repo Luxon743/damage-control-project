@@ -36,7 +36,10 @@ const bancoPreguntas: Record<string, Record<string, { req: string; res: Record<s
 }
 
 const irAEditar = () => {
-  router.push(`/pyme/permisos/crear?corregir=${idPermiso}`)
+  router.push({ 
+    name: 'editar-permiso', 
+    params: { id: idPermiso } 
+  })
 }
 </script>
 
@@ -47,7 +50,11 @@ const irAEditar = () => {
         <h1 class="text-xl font-black text-slate-800 uppercase tracking-wide">Permiso {{ permiso.id }}</h1>
         <p class="text-sm text-slate-500 mt-1">Detalle y constancia del analisis de riesgo.</p>
       </div>
-      <button @click="router.push('/pyme')" class="px-5 py-2 rounded-full border-2 border-slate-300 text-xs font-bold uppercase hover:bg-slate-50 transition">
+      
+      <button 
+        @click="router.push({ name: 'mis-permisos' })" 
+        class="px-5 py-2 rounded-full border-2 border-slate-300 text-xs font-bold uppercase hover:bg-slate-50 transition cursor-pointer"
+      >
         Volver
       </button>
     </div>
@@ -103,7 +110,7 @@ const irAEditar = () => {
         </div>
       </div>
 
-      <div v-if="versionActual.comentarioRechazo" class="mt-8 pt-6 border-t border-slate-200">
+      <div class="mt-8 pt-6 border-t border-slate-200" v-if="versionActual.comentarioRechazo">
         <div class="bg-amber-50 border-2 border-amber-200 p-5 rounded-2xl space-y-2">
           <h5 class="text-xs font-black uppercase text-amber-700 tracking-wide flex items-center gap-1.5">
             Motivo del Rechazo de esta version
@@ -121,7 +128,7 @@ const irAEditar = () => {
       <div v-if="permiso.estado === 'rechazado' && permiso.intentosReenvio > 0 && indiceVersionSeleccionada === permiso.versiones.length - 1" class="flex justify-end pt-4 border-t border-slate-100">
         <button
           @click="irAEditar"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest px-8 py-3 rounded-xl shadow-md transition-transform hover:scale-105 text-xs"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest px-8 py-3 rounded-xl shadow-md transition-transform hover:scale-105 text-xs cursor-pointer"
         >
           Corregir y Reenviar (Quedan {{ permiso.intentosReenvio }} intentos)
         </button>
