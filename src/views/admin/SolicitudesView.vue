@@ -24,8 +24,12 @@ const permisosFiltrados = ref<PermisoTrabajo[]>([])
         <FiltrosPermisos :permisos="permisos" @update:filtrados="permisosFiltrados = $event" />
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <TarjetaPermiso v-for="permiso in permisosFiltrados" :key="permiso.id" :permiso="permiso"
-                urlBase="/admin/solicitudes" />
+            <TarjetaPermiso 
+                v-for="permiso in permisosFiltrados" 
+                :key="permiso.id" 
+                :permiso="permiso"
+                nombreRutaDetalle="detalle-solicitud" 
+            />
         </div>
 
         <div v-if="permisosFiltrados.length === 0" class="text-center py-20">

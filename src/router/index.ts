@@ -18,6 +18,7 @@ import AdminDashboardView from '../views/admin/AdminDashboardView.vue'
 import SolicitudesView from '../views/admin/SolicitudesView.vue'
 import HistorialPermisosView from '../views/admin/HistorialPermisosView.vue'
 import DetalleSolicitudView from '../views/admin/DetalleSolicitudView.vue'
+import AdminPanelInicioView from "../views/admin/AdminPanelInicioView.vue";
 
 // Vistas del Modulo Usuarios
 import UserListView from '../views/usuarios/UserListView.vue'
@@ -73,29 +74,34 @@ const router = createRouter({
 
                 // Sector del "Administrador"
                 {
-                    path: 'admin',
-                    name: 'admin-dashboard',
-                    component: AdminDashboardView,
-                    redirect: { name: 'solicitudes' }, 
-                    children: [
-                        {
-                            path: 'solicitudes',
-                            name: 'solicitudes',
-                            component: SolicitudesView
-                        },
-                        {
-                            path: 'solicitudes/:id',
-                            name: 'detalle-solicitud',
-                            component: DetalleSolicitudView,
-                            props: true
-                        },
-                        {
-                            path: 'historial',
-                            name: 'historial',
-                            component: HistorialPermisosView
-                        },
-                    ]
-                },
+    path: 'admin',
+    name: 'admin-dashboard',
+    component: AdminDashboardView,
+    redirect: { name: 'admin-inicio' }, 
+    children: [
+        {
+            path: '',
+            name: 'admin-inicio',
+            component: AdminPanelInicioView
+        },
+        {
+            path: 'solicitudes', // URL: /admin/solicitudes
+            name: 'solicitudes',
+            component: SolicitudesView
+        },
+        {
+            path: 'solicitudes/:id', // URL: /admin/solicitudes/:id
+            name: 'detalle-solicitud',
+            component: DetalleSolicitudView,
+            props: true
+        },
+        {
+            path: 'historial', // URL: /admin/historial
+            name: 'historial',
+            component: HistorialPermisosView
+        },
+    ]
+},
 
                 // Apartado de Usuarios
                 {
