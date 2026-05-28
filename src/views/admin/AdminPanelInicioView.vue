@@ -1,30 +1,70 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { usePermisos } from '../../composables/usePermisos'
-import ResumenPermisos from '../../components/dashboard/ResumenPermisos.vue'
-import ResumenRiesgos from '../../components/dashboard/ResumenRiesgos.vue'
-import EstadisticasDashboard from '../../components/dashboard/Estadisticas.vue'
-import AccionesRapidas from '../../components/dashboard/AccionesRapidas.vue'
+import TablaPermisos from '../../components/permisos/TablaPermisos.vue'
 
 const { permisos } = usePermisos()
+
+const total = computed(() => permisos.value.length)
+const pendientes = computed(() => permisos.value.filter(p => p.estado === 'pendiente').length)
+const aprobados = computed(() => permisos.value.filter(p => p.estado === 'aprobado').length)
+const rechazados = computed(() => permisos.value.filter(p => p.estado === 'rechazado').length)
+const finalizados = computed(() => permisos.value.filter(p => p.estado === 'finalizado').length)
+const riesgoAlto = computed(() => permisos.value.filter(p => p.riesgo === 'alto').length)
+
+// Últimos 5 permisos (más recientes según orden de inserción, que es el array)
+const ultimosPermisos = computed(() => permisos.value.slice(-5).reverse())
 </script>
 
 <template>
     <div class="space-y-8">
+        <!-- Cabecera -->
         <div class="flex items-center justify-between">
-            <h1 class="text-xl font-black text-slate-800 tracking-wide uppercase">
+            <h1 class="text-xl font-black text-white tracking-wide uppercase">
                 Panel de Administración
             </h1>
-            <div class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase">
+            <div class="text-xs font-bold text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full uppercase">
                 Modo Auditor
             </div>
         </div>
 
-        <AccionesRapidas />
+        <!-- Métricas -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center shadow-lg">
+                <p class="text-2xl font-bold text-white">{{ total }}</p>
+                <p class="text-xs text-slate-400 uppercase font-semibold mt-1">Total</p>
+            </div>
+            <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-center shadow-lg">
+                <p class="text-2xl font-bold text-amber-400">{{ pendientes }}</p>
+                <p class="text-xs text-amber-400/70 uppercase font-semibold mt-1">Pendientes</p>
+            </div>
+            <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 text-center shadow-lg">
+                <p class="text-2xl font-bold text-emerald-400">{{ aprobados }}</p>
+                <p class="text-xs text-emerald-400/70 uppercase font-semibold mt-1">Aprobados</p>
+            </div>
+            <div class="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4 text-center shadow-lg">
+                <p class="text-2xl font-bold text-rose-400">{{ rechazados }}</p>
+                <p class="text-xs text-rose-400/70 uppercase font-semibold mt-1">Rechazados</p>
+            </div>
+            <div class="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 text-center shadow-lg">
+                <p class="text-2xl font-bold text-blue-400">{{ finalizados }}</p>
+                <p class="text-xs text-blue-400/70 uppercase font-semibold mt-1">Finalizados</p>
+            </div>
+            <div class="bg-rose-700/10 border border-rose-700/20 rounded-2xl p-4 text-center shadow-lg">
+                <p class="text-2xl font-bold text-rose-500">{{ riesgoAlto }}</p>
+                <p class="text-xs text-rose-400/70 uppercase font-semibold mt-1">Riesgo Alto</p>
+            </div>
+        </div>
 
-        <ResumenPermisos :permisos="permisos" />
-
-        <ResumenRiesgos :permisos="permisos" />
-
-        <EstadisticasDashboard :permisos="permisos" />
+        <!-- Últimos permisos -->
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-bold text-white uppercase tracking-wide">Últimos movimientos</h2>
+                <RouterLink :to="{ name: 'solicitudes' }" class="text-xs font-semibold text-indigo-400 hover:underline">
+                    Ver todas las solicitudes
+                </RouterLink>
+            </div>
+            <TablaPermisos :permisos="ultimosPermisos" />
+        </div>
     </div>
 </template>

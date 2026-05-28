@@ -19,8 +19,8 @@ const cancelar = () => {
 
 <template>
   <div class="max-w-5xl mx-auto space-y-8">
-    <div class="border-b-2 border-slate-200 pb-4">
-      <h1 class="text-xl font-black text-slate-800 uppercase tracking-wide">
+    <div class="border-b border-slate-800 pb-4 flex items-center gap-3">
+      <h1 class="text-2xl font-black text-white uppercase tracking-wide">
         Nuevo permiso de trabajo
       </h1>
     </div>

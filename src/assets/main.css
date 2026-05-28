@@ -1,1 +1,23 @@
-@import 'tailwindcss'
+@import 'tailwindcss';
+
+html {
+  background-color: #020617; /* slate-950 */
+  color: #e2e8f0;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+}
+
+/* Scroll personalizado */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}

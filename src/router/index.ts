@@ -20,12 +20,6 @@ import HistorialPermisosView from '../views/admin/HistorialPermisosView.vue'
 import DetalleSolicitudView from '../views/admin/DetalleSolicitudView.vue'
 import AdminPanelInicioView from "../views/admin/AdminPanelInicioView.vue";
 
-// Vistas del Modulo Usuarios
-import UserListView from '../views/usuarios/UserListView.vue'
-import UserCreateView from '../views/usuarios/UserCreateView.vue'
-import UserEditView from '../views/usuarios/UserEditView.vue'
-import UserDetailView from '../views/usuarios/UserDetailView.vue'
-
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -45,7 +39,7 @@ const router = createRouter({
                     path: 'pyme',
                     name: 'pyme-dashboard',
                     component: PymeDashboardView,
-                    redirect: { name: 'mis-permisos' }, 
+                    redirect: { name: 'mis-permisos' },
                     children: [
                         {
                             path: 'permisos',
@@ -74,58 +68,34 @@ const router = createRouter({
 
                 // Sector del "Administrador"
                 {
-    path: 'admin',
-    name: 'admin-dashboard',
-    component: AdminDashboardView,
-    redirect: { name: 'admin-inicio' }, 
-    children: [
-        {
-            path: '',
-            name: 'admin-inicio',
-            component: AdminPanelInicioView
-        },
-        {
-            path: 'solicitudes', // URL: /admin/solicitudes
-            name: 'solicitudes',
-            component: SolicitudesView
-        },
-        {
-            path: 'solicitudes/:id', // URL: /admin/solicitudes/:id
-            name: 'detalle-solicitud',
-            component: DetalleSolicitudView,
-            props: true
-        },
-        {
-            path: 'historial', // URL: /admin/historial
-            name: 'historial',
-            component: HistorialPermisosView
-        },
-    ]
-},
-
-                // Apartado de Usuarios
-                {
-                    path: 'usuarios',
-                    name: 'user-list',
-                    component: UserListView
+                    path: 'admin',
+                    name: 'admin-dashboard',
+                    component: AdminDashboardView,
+                    redirect: { name: 'admin-inicio' },
+                    children: [
+                        {
+                            path: '',
+                            name: 'admin-inicio',
+                            component: AdminPanelInicioView
+                        },
+                        {
+                            path: 'solicitudes', // URL: /admin/solicitudes
+                            name: 'solicitudes',
+                            component: SolicitudesView
+                        },
+                        {
+                            path: 'solicitudes/:id', // URL: /admin/solicitudes/:id
+                            name: 'detalle-solicitud',
+                            component: DetalleSolicitudView,
+                            props: true
+                        },
+                        {
+                            path: 'historial', // URL: /admin/historial
+                            name: 'historial',
+                            component: HistorialPermisosView
+                        },
+                    ]
                 },
-                {
-                    path: 'usuarios/crear',
-                    name: 'user-create',
-                    component: UserCreateView
-                },
-                {
-                    path: 'usuarios/:id',
-                    name: 'user-detail',
-                    component: UserDetailView,
-                    props: true
-                },
-                {
-                    path: 'usuarios/:id/editar',
-                    name: 'user-edit',
-                    component: UserEditView,
-                    props: true
-                }
             ]
         },
 
