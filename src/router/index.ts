@@ -84,16 +84,20 @@ const router = createRouter({
                             component: SolicitudesView
                         },
                         {
-                            path: 'solicitudes/:id', // URL: /admin/solicitudes/:id
+                            path: 'solicitudes/:id',
                             name: 'detalle-solicitud',
-                            component: DetalleSolicitudView,
-                            props: true
+                            component: DetalleSolicitudView
                         },
                         {
-                            path: 'historial', // URL: /admin/historial
-                            name: 'historial',
+                            path: 'historial',
+                            name: 'Historial',
                             component: HistorialPermisosView
                         },
+                        {
+                            path: 'historial/:id',
+                            name: 'detalle-historial',
+                            component: DetalleSolicitudView
+                        }
                     ]
                 },
             ]

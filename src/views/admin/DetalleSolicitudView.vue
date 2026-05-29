@@ -24,10 +24,21 @@ if (totalVersiones.value > 0) {
 
 const versionActual = computed(() => versionesSeguras.value[indiceVersionSeleccionada.value])
 
+// Aca detectamos si estamos en la vista de historial
+const esHistorial = computed(() => route.path.includes('/historial'))
+
+const volverAtras = () => {
+  if (esHistorial.value) {
+    router.push('/admin/historial') 
+  } else {
+    router.push('/admin/solicitudes')
+  }
+}
+
 const confirmarAprobacion = () => {
   if (confirm('¿Estás seguro de aprobar este permiso de trabajo?')) {
     revisarPermiso(idPermiso, 'aprobado')
-    router.push({ name: 'solicitudes' })
+    volverAtras()
   }
 }
 
@@ -37,54 +48,49 @@ const confirmarRechazo = () => {
     return
   }
   revisarPermiso(idPermiso, 'rechazado', comentarioRechazo.value)
-  router.push({ name: 'solicitudes' })
+  volverAtras()
 }
 
 const confirmarFinalizacion = () => {
   if (confirm('¿Estás seguro de finalizar este permiso? Una vez finalizado no podrá editarse.')) {
     finalizarPermiso(idPermiso)
-    router.push({ name: 'solicitudes' })
+    volverAtras()
   }
 }
 </script>
 
 <template>
   <div v-if="permiso && versionActual" class="max-w-5xl mx-auto space-y-6">
-    <!-- Encabezado -->
     <div class="relative flex items-center justify-center border-b border-slate-800 pb-4 min-h-14">
-    <button @click="router.push({ name: 'solicitudes' })"
+      <button @click="volverAtras"
         class="absolute left-0 top-0 flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-all shadow-sm cursor-pointer"
-        title="Volver a solicitudes">
+        :title="esHistorial ? 'Volver al historial' : 'Volver a solicitudes'">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
-    </button>
+      </button>
 
-    <div class="flex flex-col items-center text-center px-12">
+      <div class="flex flex-col items-center text-center px-12">
         <div class="flex items-center justify-center gap-3">
-            <h1 class="text-xl font-black text-white uppercase tracking-wide">Auditoría {{ permiso.id }}</h1>
-            <span class="text-[10px] font-bold text-white bg-slate-700 px-2 py-0.5 rounded-md uppercase">Modo Admin</span>
+          <h1 class="text-xl font-black text-white uppercase tracking-wide">Auditoría {{ permiso.id }}</h1>
+          <span class="text-[10px] font-bold text-white bg-slate-700 px-2 py-0.5 rounded-md uppercase">
+            {{ esHistorial ? 'Modo Historial' : 'Modo Admin' }}
+          </span>
         </div>
         <p class="text-sm text-slate-400 mt-1">Revisión del análisis de riesgo y condiciones declaradas.</p>
+      </div>
     </div>
-</div>
 
-    <!-- Versiones -->
     <div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl w-fit">
-      <button
-        v-for="(_, index) in versionesSeguras"
-        :key="index"
-        @click="indiceVersionSeleccionada = index"
+      <button v-for="(_, index) in versionesSeguras" :key="index" @click="indiceVersionSeleccionada = index"
         :class="indiceVersionSeleccionada === index
           ? 'bg-indigo-600 text-white shadow'
           : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-        class="px-4 py-2 text-xs font-black uppercase rounded-lg transition"
-      >
+        class="px-4 py-2 text-xs font-black uppercase rounded-lg transition">
         Versión {{ index + 1 }} {{ index === totalVersiones - 1 ? '(Actual)' : '' }}
       </button>
     </div>
 
-    <!-- Contenido principal -->
     <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-slate-800 pb-4">
         <div>
@@ -128,7 +134,6 @@ const confirmarFinalizacion = () => {
         </div>
       </div>
 
-      <!-- Comentario de rechazo -->
       <div v-if="versionActual.comentarioRechazo" class="pt-6 border-t border-slate-800">
         <div class="bg-rose-500/10 border border-rose-500/20 p-5 rounded-2xl space-y-2">
           <h5 class="text-xs font-black uppercase text-rose-400 tracking-wide">Motivo del Rechazo</h5>
@@ -138,9 +143,7 @@ const confirmarFinalizacion = () => {
         </div>
       </div>
 
-      <!-- Botones de acción -->
-      <div class="mt-8 pt-6 border-t border-slate-800 space-y-4">
-        <!-- Pendiente -->
+      <div v-if="!esHistorial" class="mt-8 pt-6 border-t border-slate-800 space-y-4">
         <div v-if="permiso.estado === 'pendiente' && indiceVersionSeleccionada === totalVersiones - 1">
           <div v-if="!modoRechazo" class="flex items-center justify-end gap-4">
             <button @click="modoRechazo = true"
@@ -172,7 +175,6 @@ const confirmarFinalizacion = () => {
           </div>
         </div>
 
-        <!-- Aprobado -->
         <div v-if="permiso.estado === 'aprobado'" class="flex justify-end">
           <button @click="confirmarFinalizacion"
             class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest px-8 py-3 rounded-xl shadow-lg transition-transform hover:scale-105">
@@ -180,14 +182,12 @@ const confirmarFinalizacion = () => {
           </button>
         </div>
 
-        <!-- Finalizado -->
         <div v-if="permiso.estado === 'finalizado'" class="flex justify-end">
           <span class="bg-blue-500/20 text-blue-400 text-xs font-bold uppercase px-4 py-2 rounded-full">
             Trabajo finalizado
           </span>
         </div>
 
-        <!-- Rechazado -->
         <div v-if="permiso.estado === 'rechazado'" class="flex justify-end">
           <span class="bg-amber-500/20 text-amber-400 text-xs font-bold uppercase px-4 py-2 rounded-full">
             Rechazado - Esperando corrección
