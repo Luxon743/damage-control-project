@@ -28,7 +28,8 @@ const actualizar = (evento: Event) => {
       :placeholder="placeholder ?? ''"
       :disabled="deshabilitado"
       rows="3"
-      class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-6 py-4 focus:border-indigo-500 outline-none transition shadow-sm disabled:bg-slate-800/50 disabled:text-slate-500 disabled:border-slate-800 disabled:cursor-not-allowed [color-scheme:dark]"
+      class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-6 py-4 focus:border-indigo-500 outline-none transition shadow-sm disabled:bg-slate-800/50 disabled:text-slate-500 disabled:border-slate-800 disabled:cursor-not-allowed"
+      style="color-scheme: dark;"
     ></textarea>
   </div>
 </template>
