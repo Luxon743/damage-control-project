@@ -33,20 +33,32 @@ const cancelar = () => {
 
 <template>
   <div class="max-w-5xl mx-auto space-y-8" v-if="permiso">
-    <div class="border-b border-slate-800 pb-4">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white font-black text-sm">↻</div>
-        <h1 class="text-2xl font-black text-white uppercase tracking-wide">
-          Corregir Permiso #{{ idPermiso }}
-        </h1>
-        <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md uppercase animate-pulse">
-          Reenvío (Intentos restantes: {{ permiso.intentosReenvio }})
-        </span>
-      </div>
-      <p class="text-xs text-slate-400 mt-1 uppercase font-bold">
-        Modifica la descripción y controles de riesgo indicados por el auditor.
-      </p>
+    <div class="max-w-5xl mx-auto space-y-8" v-if="permiso">
+    <div class="relative flex items-center justify-center border-b border-slate-800 pb-4 min-h-14">
+        <button @click="router.push({ name: 'mis-permisos' })"
+            class="absolute left-0 top-0 flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-all shadow-sm cursor-pointer"
+            title="Volver a mis permisos">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+        </button>
+
+        <div class="flex flex-col items-center text-center px-12">
+            <div class="flex items-center justify-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white font-black text-sm">↻</div>
+                <h1 class="text-2xl font-black text-white uppercase tracking-wide">
+                    Corregir Permiso #{{ idPermiso }}
+                </h1>
+                <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md uppercase animate-pulse">
+                    Reenvío (Intentos restantes: {{ permiso.intentosReenvio }})
+                </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 uppercase font-bold">
+                Modifica la descripción y controles de riesgo indicados por el auditor.
+            </p>
+        </div>
     </div>
+</div>
 
     <FormularioPermiso
       :permiso-inicial="permiso"

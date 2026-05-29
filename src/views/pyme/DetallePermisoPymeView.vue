@@ -26,16 +26,22 @@ const irAEditar = () => {
 
 <template>
   <div v-if="permiso && versionActual" class="max-w-5xl mx-auto space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-800 pb-4 gap-4">
-      <div>
+    <div class="relative flex items-center justify-center border-b border-slate-800 pb-4 min-h-14">
+      
+      <button @click="router.push({ name: 'mis-permisos' })"
+        class="absolute left-0 top-0 flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-all shadow-sm cursor-pointer"
+        title="Volver a mis permisos">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </button>
+
+      <div class="text-center px-12">
         <h1 class="text-xl font-black text-white uppercase tracking-wide">Permiso {{ permiso.id }}</h1>
         <p class="text-sm text-slate-400 mt-1">Detalle y constancia del análisis de riesgo.</p>
       </div>
-      <button @click="router.push({ name: 'mis-permisos' })"
-        class="px-5 py-2 rounded-full border border-slate-700 text-slate-300 text-xs font-bold uppercase hover:bg-slate-800 transition">
-        ← Volver a mis permisos
-      </button>
     </div>
+    
 
     <!-- Versiones -->
     <div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl w-fit">
