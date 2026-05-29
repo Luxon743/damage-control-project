@@ -28,8 +28,10 @@ const cambiarPestana = (estado: EstadoPermiso | 'todos') => {
 }
 
 const verDetalle = (id: string) => {
-  router.push({ name: 'detalle-solicitud', params: { id } })
+  // Hacempos que se mantenga en /historial y no pase a /solicitudes
+  router.push({ name: 'detalle-historial', params: { id } })
 }
+
 </script>
 
 <template>
