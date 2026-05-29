@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
 import type { PermisoTrabajo } from '../../models/PermisoTrabajo'
+import { useOrdenamientoTabla } from '../../composables/useOrdenamientoTabla'
 
 const props = defineProps<{
   permisos: PermisoTrabajo[]
@@ -19,11 +19,6 @@ type ColumnaOrden =
   | 'riesgo'
   | 'fecha'
 
-type DireccionOrden = 'asc' | 'desc'
-
-const columnaOrden = ref<ColumnaOrden | null>(null)
-const direccionOrden = ref<DireccionOrden>('asc')
-
 const ordenRiesgo: Record<string, number> = {
   bajo: 1,
   medio: 2,
@@ -37,19 +32,25 @@ const ordenEstado: Record<string, number> = {
   finalizado: 4
 }
 
-const ordenarPor = (columna: ColumnaOrden) => {
-  if (columnaOrden.value === columna) {
-    direccionOrden.value = direccionOrden.value === 'asc' ? 'desc' : 'asc'
-  } else {
-    columnaOrden.value = columna
-    direccionOrden.value = 'asc'
+const convertirFechaAValor = (fecha: string) => {
+  if (!fecha) return 0
+
+  if (fecha.includes('-')) {
+    return new Date(fecha).getTime()
   }
+
+  if (fecha.includes('/')) {
+    const [dia, mes, anio] = fecha.split('/')
+    return new Date(Number(anio), Number(mes) - 1, Number(dia)).getTime()
+  }
+
+  return 0
 }
 
 const obtenerValorOrden = (permiso: PermisoTrabajo, columna: ColumnaOrden) => {
   switch (columna) {
     case 'id':
-      return permiso.id
+      return permiso.id.toLowerCase()
 
     case 'titulo':
       return permiso.titulo.toLowerCase()
@@ -74,46 +75,15 @@ const obtenerValorOrden = (permiso: PermisoTrabajo, columna: ColumnaOrden) => {
   }
 }
 
-const convertirFechaAValor = (fecha: string) => {
-  if (!fecha) return 0
-
-  // Si viene como yyyy-mm-dd
-  if (fecha.includes('-')) {
-    return new Date(fecha).getTime()
-  }
-
-  // Si viene como dd/mm/yyyy
-  if (fecha.includes('/')) {
-    const [dia, mes, anio] = fecha.split('/')
-    return new Date(Number(anio), Number(mes) - 1, Number(dia)).getTime()
-  }
-
-  return 0
-}
-
-const permisosOrdenados = computed(() => {
-  if (!columnaOrden.value) return props.permisos
-
-  return [...props.permisos].sort((a, b) => {
-    const valorA = obtenerValorOrden(a, columnaOrden.value!)
-    const valorB = obtenerValorOrden(b, columnaOrden.value!)
-
-    if (typeof valorA === 'number' && typeof valorB === 'number') {
-      return direccionOrden.value === 'asc'
-        ? valorA - valorB
-        : valorB - valorA
-    }
-
-    return direccionOrden.value === 'asc'
-      ? String(valorA).localeCompare(String(valorB))
-      : String(valorB).localeCompare(String(valorA))
-  })
-})
-
-const iconoOrden = (columna: ColumnaOrden) => {
-  if (columnaOrden.value !== columna) return '↕'
-  return direccionOrden.value === 'asc' ? '↑' : '↓'
-}
+const {
+  columnaOrden,
+  ordenarPor,
+  itemsOrdenados: permisosOrdenados,
+  iconoOrden
+} = useOrdenamientoTabla<PermisoTrabajo, ColumnaOrden>(
+  () => props.permisos,
+  obtenerValorOrden
+)
 
 const claseHeader = (columna: ColumnaOrden) => {
   return columnaOrden.value === columna
