@@ -22,6 +22,15 @@ const versionActual = computed(() => permiso.value?.versiones[indiceVersionSelec
 const irAEditar = () => {
   router.push({ name: 'editar-permiso', params: { id: idPermiso } })
 }
+const estadoClase = (estado: string) => {
+  switch (estado) {
+    case 'pendiente': return 'bg-amber-500/20 text-amber-400'
+    case 'aprobado': return 'bg-emerald-500/20 text-emerald-400'
+    case 'rechazado': return 'bg-rose-500/20 text-rose-400'
+    case 'finalizado': return 'bg-blue-500/20 text-blue-400'
+    default: return 'bg-slate-500/20 text-slate-400'
+  }
+}
 </script>
 
 <template>
@@ -58,9 +67,19 @@ const irAEditar = () => {
           <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-wider">Título del Trabajo</h4>
           <p class="text-base font-bold text-white mt-0.5">{{ permiso.titulo }}</p>
         </div>
-        <div>
-          <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-wider">Fecha Estipulada</h4>
-          <p class="text-base font-bold text-white mt-0.5">{{ permiso.fechaInicio }}</p>
+        
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-wider">Fecha Estipulada</h4>
+            <p class="text-base font-bold text-white mt-0.5">{{ permiso.fechaInicio }}</p>
+          </div>
+          
+          <div class="text-right self-end pb-0.5">
+            <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-wider mb-1">Estado Actual</h4>
+            <span :class="estadoClase(permiso.estado)" class="inline-block text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider shadow-sm">
+              {{ permiso.estado }}
+            </span>
+          </div>
         </div>
       </div>
 
