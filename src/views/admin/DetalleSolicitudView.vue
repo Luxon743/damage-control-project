@@ -38,7 +38,9 @@ const volverAtras = () => {
 const confirmarAprobacion = () => {
   if (confirm('¿Estás seguro de aprobar este permiso de trabajo?')) {
     revisarPermiso(idPermiso, 'aprobado')
-    volverAtras()
+    // Al aprobarse, ahora pertenece al Historial.
+    // Lo movemos a la ruta de historial para que el sidebar se actualice correctamente.
+    router.push(`/admin/historial/${idPermiso}`)
   }
 }
 
@@ -48,15 +50,21 @@ const confirmarRechazo = () => {
     return
   }
   revisarPermiso(idPermiso, 'rechazado', comentarioRechazo.value)
-  volverAtras()
+  // Cerramos el cuadro de texto del rechazo
+  modoRechazo.value = false 
+  // QUITAMOS el volverAtras(). Al quedarse acá, el v-if reactivo va a mostrar el banner de "Rechazado - Esperando corrección" al instante.
 }
 
-const confirmarFinalizacion = () => {
-  if (confirm('¿Estás seguro de finalizar este permiso? Una vez finalizado no podrá editarse.')) {
-    finalizarPermiso(idPermiso)
-    volverAtras()
+const estadoClase = (estado: string) => {
+  switch (estado) {
+    case 'pendiente': return 'bg-amber-500/20 text-amber-400'
+    case 'aprobado': return 'bg-emerald-500/20 text-emerald-400'
+    case 'rechazado': return 'bg-rose-500/20 text-rose-400'
+    case 'finalizado': return 'bg-blue-500/20 text-blue-400'
+    default: return 'bg-slate-500/20 text-slate-400'
   }
 }
+
 </script>
 
 <template>
@@ -97,9 +105,19 @@ const confirmarFinalizacion = () => {
           <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-wider">Título del Trabajo</h4>
           <p class="text-base font-bold text-white mt-0.5">{{ permiso.titulo }}</p>
         </div>
-        <div>
-          <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-wider">Fecha Estipulada</h4>
-          <p class="text-base font-bold text-white mt-0.5">{{ permiso.fechaInicio }}</p>
+        
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-wider">Fecha Estipulada</h4>
+            <p class="text-base font-bold text-white mt-0.5">{{ permiso.fechaInicio }}</p>
+          </div>
+          
+          <div class="text-right self-end pb-0.5">
+            <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-wider mb-1">Estado Actual</h4>
+            <span :class="estadoClase(permiso.estado)" class="inline-block text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider shadow-sm">
+              {{ permiso.estado }}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -174,14 +192,7 @@ const confirmarFinalizacion = () => {
             </div>
           </div>
         </div>
-
-        <div v-if="permiso.estado === 'aprobado'" class="flex justify-end">
-          <button @click="confirmarFinalizacion"
-            class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest px-8 py-3 rounded-xl shadow-lg transition-transform hover:scale-105">
-            Finalizar Permiso
-          </button>
-        </div>
-
+        
         <div v-if="permiso.estado === 'finalizado'" class="flex justify-end">
           <span class="bg-blue-500/20 text-blue-400 text-xs font-bold uppercase px-4 py-2 rounded-full">
             Trabajo finalizado

@@ -26,14 +26,28 @@ const emit = defineEmits<{
 const titulo = ref(props.permisoInicial?.titulo || '')
 const descripcion = ref(props.permisoInicial?.descripcion || '')
 const ubicacion = ref(props.permisoInicial?.ubicacion || '')
-const fechaInicio = ref(props.permisoInicial?.fechaInicio || '')
-const fechaFin = ref(props.permisoInicial?.fechaFin || '')
 const empresaSolicitanteId = ref(props.permisoInicial?.empresaSolicitante?.id || '')
 const empresaContratanteId = ref(props.permisoInicial?.empresaContratante?.id || '')
 const tipoTrabajoId = ref(props.permisoInicial?.tipoTrabajo?.id || '')
 const peligrosSeleccionados = ref<Peligro[]>(props.permisoInicial?.peligros ? [...props.permisoInicial.peligros] : [])
 const trabajadoresSeleccionados = ref<Trabajador[]>(props.permisoInicial?.trabajadores ? [...props.permisoInicial.trabajadores] : [])
 const errores = ref<string[]>([])
+
+// Función que traduce 'DD/MM/YYYY' a 'YYYY-MM-DD' para que el input lo acepte
+const formatearFechaParaInput = (fecha?: string) => {
+  if (!fecha) return ''
+  if (fecha.includes('-')) return fecha 
+  
+  if (fecha.includes('/')) {
+    const [dia, mes, anio] = fecha.split('/')
+    return `${anio}-${mes}-${dia}`
+  }
+  return fecha
+}
+
+// Ahora usamos la función para inicializar los datos
+const fechaInicio = ref(formatearFechaParaInput(props.permisoInicial?.fechaInicio))
+const fechaFin = ref(formatearFechaParaInput(props.permisoInicial?.fechaFin))
 
 const contratistas = computed(() => empresas.filter(e => e.tipoEmpresa === 'contratista').map(e => ({ id: e.id, texto: e.nombre })))
 const contratantes = computed(() => empresas.filter(e => e.tipoEmpresa === 'contratante').map(e => ({ id: e.id, texto: e.nombre })))

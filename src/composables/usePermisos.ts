@@ -34,6 +34,7 @@ export function usePermisos() {
             intentosReenvio: 2
         };
         permisos.value.push(nuevoPermiso);
+        return nuevoId;
     };
 
     const reenviarPermiso = (id: string, correccion: { descripcion: string; respuestas: Record<string, string>; peligros: Peligro[]; trabajadores: Trabajador[] }) => {

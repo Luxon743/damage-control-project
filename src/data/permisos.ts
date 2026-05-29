@@ -21,7 +21,7 @@ export const permisosIniciales: PermisoTrabajo[] = [
         riesgo: 'medio',
         versiones: [
             {
-                descripcion: 'Trabajo con arnés y línea de vida instalada en pasarela',
+                descripcion: 'Reemplazo de 12 reflectores LED en altura sobre pasarela',
                 peligros: [peligros[2]!, peligros[0]!],
                 trabajadores: [trabajadores[1]!, trabajadores[3]!],
                 respuestas: {
@@ -48,7 +48,7 @@ export const permisosIniciales: PermisoTrabajo[] = [
         riesgo: 'alto',
         versiones: [
             {
-                descripcion: 'Se purgará la línea con nitrógeno antes de soldar',
+                descripcion: 'Reparación de fuga en caño de 4 pulgadas con soldadura TIG',
                 peligros: [peligros[5]!, peligros[4]!],
                 trabajadores: [trabajadores[0]!, trabajadores[2]!],
                 respuestas: {
@@ -76,7 +76,7 @@ export const permisosIniciales: PermisoTrabajo[] = [
         comentarioRechazo: 'Falta especificar procedimiento de bloqueo y etiquetado (LOTO)',
         versiones: [
             {
-                descripcion: 'Desconexión del tablero aguas arriba sin bloqueo',
+                descripcion: 'Limpieza y ajuste de bornes en tablero de 380V',
                 peligros: [peligros[1]!, peligros[6]!],
                 trabajadores: [trabajadores[1]!],
                 respuestas: {
@@ -104,7 +104,7 @@ export const permisosIniciales: PermisoTrabajo[] = [
         riesgo: 'medio',
         versiones: [
             {
-                descripcion: 'Se utilizará grúa hidráulica con eslingas certificadas',
+                descripcion: 'Montaje de compresor de 2 toneladas en plataforma',
                 peligros: [peligros[3]!, peligros[6]!],
                 trabajadores: [trabajadores[3]!, trabajadores[2]!],
                 respuestas: {
@@ -131,7 +131,7 @@ export const permisosIniciales: PermisoTrabajo[] = [
         riesgo: 'bajo',
         versiones: [
             {
-                descripcion: 'Excavación manual con entibado cada 2 metros',
+                descripcion: 'Zanja de 1.2 m de profundidad para cableado de fibra óptica',
                 peligros: [peligros[6]!, peligros[4]!],
                 trabajadores: [trabajadores[5]!],
                 respuestas: {
