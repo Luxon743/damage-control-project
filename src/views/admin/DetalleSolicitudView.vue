@@ -38,7 +38,9 @@ const volverAtras = () => {
 const confirmarAprobacion = () => {
   if (confirm('¿Estás seguro de aprobar este permiso de trabajo?')) {
     revisarPermiso(idPermiso, 'aprobado')
-    volverAtras()
+    // Al aprobarse, ahora pertenece al Historial.
+    // Lo movemos a la ruta de historial para que el sidebar se actualice correctamente.
+    router.push(`/admin/historial/${idPermiso}`)
   }
 }
 
@@ -48,7 +50,9 @@ const confirmarRechazo = () => {
     return
   }
   revisarPermiso(idPermiso, 'rechazado', comentarioRechazo.value)
-  volverAtras()
+  // Cerramos el cuadro de texto del rechazo
+  modoRechazo.value = false 
+  // QUITAMOS el volverAtras(). Al quedarse acá, el v-if reactivo va a mostrar el banner de "Rechazado - Esperando corrección" al instante.
 }
 
 const confirmarFinalizacion = () => {

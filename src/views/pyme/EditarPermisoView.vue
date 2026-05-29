@@ -23,7 +23,8 @@ const manejarSubmit = (datos: Omit<PermisoTrabajo, 'id' | 'estado' | 'versiones'
     peligros: datos.peligros,
     trabajadores: datos.trabajadores
   })
-  router.push({ name: 'mis-permisos' })
+
+  router.push({ name: 'detalle-permiso', params: { id: idPermiso } })
 }
 
 const cancelar = () => {
@@ -33,11 +34,10 @@ const cancelar = () => {
 
 <template>
   <div class="max-w-5xl mx-auto space-y-8" v-if="permiso">
-    <div class="max-w-5xl mx-auto space-y-8" v-if="permiso">
     <div class="relative flex items-center justify-center border-b border-slate-800 pb-4 min-h-14">
-        <button @click="router.push({ name: 'mis-permisos' })"
+        <button @click="cancelar"
             class="absolute left-0 top-0 flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-all shadow-sm cursor-pointer"
-            title="Volver a mis permisos">
+            title="Volver al detalle">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -58,7 +58,6 @@ const cancelar = () => {
             </p>
         </div>
     </div>
-</div>
 
     <FormularioPermiso
       :permiso-inicial="permiso"

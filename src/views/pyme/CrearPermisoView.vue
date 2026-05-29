@@ -8,8 +8,10 @@ const router = useRouter()
 const { agregarPermiso } = usePermisos()
 
 const manejarSubmit = (datos: Omit<PermisoTrabajo, 'id' | 'estado' | 'versiones' | 'intentosReenvio'>) => {
-  agregarPermiso(datos)
-  router.push({ name: 'mis-permisos' })
+  const nuevoId = agregarPermiso(datos)
+  
+  // En lugar de ir a la tabla, redirigimos directamente a ver cómo quedó
+  router.push({ name: 'detalle-permiso', params: { id: nuevoId } })
 }
 
 const cancelar = () => {
