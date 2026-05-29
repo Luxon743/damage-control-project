@@ -25,7 +25,7 @@ const cerrarSidebar = (): void => {
     <div v-if="sidebarAbierto" class="fixed inset-0 z-40 bg-black/60 md:hidden" @click="cerrarSidebar" />
 
     <div class="fixed inset-y-0 left-0 z-50 w-64 md:hidden transition-transform duration-300"
-         :class="sidebarAbierto ? 'translate-x-0' : '-translate-x-full'">
+        :class="sidebarAbierto ? 'translate-x-0' : '-translate-x-full'">
       <div class="h-full overflow-y-auto bg-slate-900 text-slate-300 shadow-xl">
         <Sidebar @navegar="cerrarSidebar" />
       </div>
