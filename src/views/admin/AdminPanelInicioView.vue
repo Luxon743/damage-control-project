@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter, RouterLink } from 'vue-router'
 import { usePermisos } from '../../composables/usePermisos'
 import TablaPermisos from '../../components/permisos/TablaPermisos.vue'
 
 const { permisos } = usePermisos()
+const router = useRouter()
 
 const total = computed(() => permisos.value.length)
 const pendientes = computed(() => permisos.value.filter(p => p.estado === 'pendiente').length)
@@ -14,11 +16,23 @@ const riesgoAlto = computed(() => permisos.value.filter(p => p.riesgo === 'alto'
 
 // Últimos 5 permisos (más recientes según orden de inserción, que es el array)
 const ultimosPermisos = computed(() => permisos.value.slice(-5).reverse())
+
+// Función para manejar el click en la tabla
+const irADetalle = (id: string) => {
+    const permiso = permisos.value.find(p => p.id === id)
+    if (!permiso) return
+
+    // Al hacer click lo mandamos a donde deba ir
+    if (permiso.estado === 'pendiente' || permiso.estado === 'rechazado') {
+        router.push(`/admin/solicitudes/${id}`)
+    } else {
+        router.push(`/admin/historial/${id}`)
+    }
+}
 </script>
 
 <template>
     <div class="space-y-8">
-        <!-- Cabecera -->
         <div class="flex items-center justify-between">
             <h1 class="text-xl font-black text-white tracking-wide uppercase">
                 Panel de Administración
@@ -28,7 +42,6 @@ const ultimosPermisos = computed(() => permisos.value.slice(-5).reverse())
             </div>
         </div>
 
-        <!-- Métricas -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center shadow-lg">
                 <p class="text-2xl font-bold text-white">{{ total }}</p>
@@ -56,7 +69,6 @@ const ultimosPermisos = computed(() => permisos.value.slice(-5).reverse())
             </div>
         </div>
 
-        <!-- Últimos permisos -->
         <div>
             <div class="flex items-center justify-between mb-3">
                 <h2 class="text-lg font-bold text-white uppercase tracking-wide">Últimos movimientos</h2>
@@ -64,7 +76,8 @@ const ultimosPermisos = computed(() => permisos.value.slice(-5).reverse())
                     Ver todas las solicitudes
                 </RouterLink>
             </div>
-            <TablaPermisos :permisos="ultimosPermisos" />
+            
+            <TablaPermisos :permisos="ultimosPermisos" @ver-detalle="irADetalle" />
         </div>
     </div>
 </template>
