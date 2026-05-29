@@ -8,11 +8,19 @@ import type { PermisoTrabajo, EstadoPermiso } from '../../models/PermisoTrabajo'
 const { permisos } = usePermisos()
 const router = useRouter()
 
+// Filtrar solo permisos finalizados y aprobados
+const permisosFinalizadosYAprobados = computed(() => 
+  permisos.value.filter(permiso => 
+    permiso.estado === 'finalizado' || permiso.estado === 'aprobado'
+  )
+)
+
 const pestanaActiva = ref<EstadoPermiso | 'todos'>('todos')
 
+
 const permisosFiltrados = computed(() => {
-  if (pestanaActiva.value === 'todos') return permisos.value
-  return permisos.value.filter(p => p.estado === pestanaActiva.value)
+  if (pestanaActiva.value === 'todos') return permisosFinalizadosYAprobados.value
+  return permisosFinalizadosYAprobados.value.filter(p => p.estado === pestanaActiva.value)
 })
 
 const cambiarPestana = (estado: EstadoPermiso | 'todos') => {
@@ -38,7 +46,7 @@ const verDetalle = (id: string) => {
     <!-- Pestañas -->
     <div class="flex flex-wrap gap-2">
       <button
-        v-for="estado in ['todos', 'pendiente', 'aprobado', 'rechazado', 'finalizado'] as const"
+        v-for="estado in ['todos', 'aprobado', 'finalizado'] as const"
         :key="estado"
         @click="cambiarPestana(estado)"
         :class="pestanaActiva === estado

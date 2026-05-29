@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePermisos } from '../../composables/usePermisos'
 import FiltrosPermisos from '../../components/permisos/FiltrosPermisos.vue'
@@ -8,6 +8,13 @@ import type { PermisoTrabajo } from '../../models/PermisoTrabajo'
 
 const { permisos } = usePermisos()
 const router = useRouter()
+
+// Filtrar solo permisos pendientes y rechazados
+const permisosPendientesYRechazados = computed(() => 
+    permisos.value.filter(permiso => 
+        permiso.estado === 'pendiente' || permiso.estado === 'rechazado'
+    )
+)
 
 const permisosFiltrados = ref<PermisoTrabajo[]>([])
 
@@ -27,7 +34,7 @@ const verDetalle = (id: string) => {
             </div>
         </div>
 
-        <FiltrosPermisos :permisos="permisos" @update:filtrados="permisosFiltrados = $event" />
+        <FiltrosPermisos :permisos="permisosPendientesYRechazados" :estados-visibles="['pendiente', 'rechazado',]" @update:filtrados="permisosFiltrados = $event" />
 
         <TablaPermisos :permisos="permisosFiltrados" @ver-detalle="verDetalle" />
     </div>
