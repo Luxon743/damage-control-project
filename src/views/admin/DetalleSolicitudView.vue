@@ -65,12 +65,6 @@ const estadoClase = (estado: string) => {
   }
 }
 
-const confirmarFinalizacion = () => {
-  if (confirm('¿Estás seguro de finalizar este permiso? Una vez finalizado no podrá editarse.')) {
-    finalizarPermiso(idPermiso)
-    volverAtras()
-  }
-}
 </script>
 
 <template>
@@ -198,14 +192,7 @@ const confirmarFinalizacion = () => {
             </div>
           </div>
         </div>
-
-        <div v-if="permiso.estado === 'aprobado'" class="flex justify-end">
-          <button @click="confirmarFinalizacion"
-            class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest px-8 py-3 rounded-xl shadow-lg transition-transform hover:scale-105">
-            Finalizar Permiso
-          </button>
-        </div>
-
+        
         <div v-if="permiso.estado === 'finalizado'" class="flex justify-end">
           <span class="bg-blue-500/20 text-blue-400 text-xs font-bold uppercase px-4 py-2 rounded-full">
             Trabajo finalizado
