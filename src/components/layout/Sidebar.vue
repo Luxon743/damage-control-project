@@ -32,7 +32,7 @@ const enlacesAdmin = [
     {
         texto: 'Solicitudes',
         ruta: '/admin/solicitudes',
-        icono: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
+        icono: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'
     },
     {
         texto: 'Historial',
@@ -43,11 +43,24 @@ const enlacesAdmin = [
 
 const menuActivo = computed(() => (esAdmin.value ? enlacesAdmin : enlacesPyme))
 
+// Lógica para evitar bugs de múltiples enlaces activos
 const estaActivo = (ruta: string): boolean => {
     const path = route.path
-    if (ruta === '/pyme') return path === '/pyme' || path.startsWith('/pyme/permisos')
-    if (ruta === '/admin') return path === '/admin' && !path.includes('/solicitudes') && !path.includes('/historial')
-    return path.startsWith(ruta)
+
+    if (ruta === '/pyme') {
+        if (path === '/pyme/permisos/crear') return false
+        return path === '/pyme' || path.startsWith('/pyme/permisos')
+    }
+
+    if (ruta === '/admin/solicitudes') {
+        return path.startsWith('/admin/solicitudes')
+    }
+
+    if (ruta === '/admin/historial') {
+        return path.startsWith('/admin/historial')
+    }
+
+    return path === ruta
 }
 
 const onClick = (): void => {
