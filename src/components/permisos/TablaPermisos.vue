@@ -171,10 +171,6 @@ const riesgoClase = (riesgo: string) => {
           >
             Fecha {{ iconoOrden('fecha') }}
           </th>
-
-          <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-right text-slate-300">
-            Acción
-          </th>
         </tr>
       </thead>
 
@@ -215,15 +211,6 @@ const riesgoClase = (riesgo: string) => {
 
           <td class="px-6 py-4 text-slate-500">
             {{ permiso.fechaInicio }}
-          </td>
-
-          <td class="px-6 py-4 text-right">
-            <button
-              @click.stop="emit('ver-detalle', permiso.id)"
-              class="text-indigo-400 hover:text-indigo-300 text-xs font-black uppercase"
-            >
-              Ver
-            </button>
           </td>
         </tr>
       </tbody>
