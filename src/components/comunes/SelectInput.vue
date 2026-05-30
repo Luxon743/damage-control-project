@@ -34,7 +34,8 @@ const actualizar = (evento: Event) => {
       :value="modelo"
       @change="actualizar"
       :disabled="deshabilitado"
-      class="w-full bg-white border-2 border-slate-300 rounded-full px-6 py-3 focus:border-indigo-500 outline-none transition shadow-sm disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed appearance-none"
+      class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-6 py-3 focus:border-indigo-500 outline-none transition shadow-sm disabled:bg-slate-800/50 disabled:text-slate-500 disabled:border-slate-800 disabled:cursor-not-allowed appearance-none"
+      style="color-scheme: dark;"
     >
       <option value="" disabled>{{ placeholder }}</option>
       <option v-for="opcion in opciones" :key="opcion.id" :value="opcion.id">

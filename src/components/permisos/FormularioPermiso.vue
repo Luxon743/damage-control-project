@@ -1,181 +1,161 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import InputTexto from '../comunes/InputTexto.vue'
+import TextAreaInput from '../comunes/TextAreaInput.vue'
+import SelectInput from '../comunes/SelectInput.vue'
+import SelectorPeligros from './SelectorPeligros.vue'
+import SelectorTrabajadores from './SelectorTrabajadores.vue'
+import BotonPrimario from '../comunes/BotonPrimario.vue'
 import type { PermisoTrabajo } from '../../models/PermisoTrabajo'
 import type { Peligro } from '../../models/Peligro'
 import type { Trabajador } from '../../models/Trabajador'
-import { tiposTrabajo } from '../../data/tiposTrabajo'
 import { empresas } from '../../data/empresas'
+import { tiposTrabajo } from '../../data/tiposTrabajo'
 import { calcularRiesgo } from '../../utils/calcularRiesgo'
-import SelectorPeligros from './SelectorPeligros.vue'
-import SelectorTrabajadores from './SelectorTrabajadores.vue'
 
 const props = defineProps<{
-    permisoInicial?: PermisoTrabajo
-    esEdicion?: boolean
+  permisoInicial?: PermisoTrabajo
+  esEdicion?: boolean
 }>()
 
-const emit = defineEmits(['submit', 'cancelar'])
+const emit = defineEmits<{
+  (e: 'submit', permiso: Omit<PermisoTrabajo, 'id' | 'estado' | 'versiones' | 'intentosReenvio'> & { respuestas?: Record<string, string> }): void
+  (e: 'cancelar'): void
+}>()
 
-/*const bancoPreguntas: Record<string, { req: string; res: Record<string, string> }[]> = {
-    'tt-1': [
-        { req: 'Altura de la tarea a realizar', res: { 'r1': 'Menor a 2 metros', 'r2': 'Entre 2 y 6 metros', 'r3': 'Más de 6 metros (Gran altura)' } },
-        { req: 'Tipo de sistema anticaídas', res: { 'r4': 'Arnés completo con doble cola y anclaje fijo', 'r5': 'Cinturón de posicionamiento simple', 'r6': 'Sin elementos de sujeción' } }
-    ],
-    'tt-3': [
-        { req: 'Estado de herramientas y equipos', res: { 'r7': 'Nuevas con certificación vigente', 'r8': 'Buen estado pero sin certificación', 'r9': 'Herramientas manuales sin aislación' } },
-        { req: 'Distancia a líneas de tensión', res: { 'r10': 'Fuera de la zona de peligro (> 5m)', 'r11': 'Zona de proximidad controlada', 'r12': 'Contacto directo con conductores' } }
-    ]
+const titulo = ref(props.permisoInicial?.titulo || '')
+const descripcion = ref(props.permisoInicial?.descripcion || '')
+const ubicacion = ref(props.permisoInicial?.ubicacion || '')
+const empresaSolicitanteId = ref(props.permisoInicial?.empresaSolicitante?.id || '')
+const empresaContratanteId = ref(props.permisoInicial?.empresaContratante?.id || '')
+const tipoTrabajoId = ref(props.permisoInicial?.tipoTrabajo?.id || '')
+const peligrosSeleccionados = ref<Peligro[]>(props.permisoInicial?.peligros ? [...props.permisoInicial.peligros] : [])
+const trabajadoresSeleccionados = ref<Trabajador[]>(props.permisoInicial?.trabajadores ? [...props.permisoInicial.trabajadores] : [])
+const errores = ref<string[]>([])
+
+const formatearFechaParaInput = (fecha?: string) => {
+  if (!fecha) return ''
+  if (fecha.includes('-')) return fecha 
+  if (fecha.includes('/')) {
+    const [dia, mes, anio] = fecha.split('/')
+    return `${anio}-${mes}-${dia}`
+  }
+  return fecha
 }
-*/
-const formulario = ref({
-    titulo: props.permisoInicial?.titulo || '',
-    descripcion: props.permisoInicial?.descripcion || '',
-    ubicacion: props.permisoInicial?.ubicacion || '',
-    fechaInicio: props.permisoInicial?.fechaInicio || '',
-    fechaFin: props.permisoInicial?.fechaFin || '',
-    empresaSolicitanteId: props.permisoInicial?.empresaSolicitante?.id || '',
-    empresaContratanteId: props.permisoInicial?.empresaContratante?.id || '',
-    tipoTrabajoId: props.permisoInicial?.tipoTrabajo?.id || '',
-    peligros: props.permisoInicial?.peligros ? [...props.permisoInicial.peligros] : [] as Peligro[],
-    trabajadores: props.permisoInicial?.trabajadores ? [...props.permisoInicial.trabajadores] : [] as Trabajador[],
-    respuestas: props.permisoInicial?.versiones?.at(-1)?.respuestas || {} as Record<string, string>
-})
 
-const contratistas = computed(() => empresas.filter(e => e.tipoEmpresa === 'contratista'))
-const contratantes = computed(() => empresas.filter(e => e.tipoEmpresa === 'contratante'))
-const comentarioRechazo = computed(() => props.permisoInicial?.versiones?.at(-1)?.comentarioRechazo)
+const fechaInicio = ref(formatearFechaParaInput(props.permisoInicial?.fechaInicio))
+const fechaFin = ref(formatearFechaParaInput(props.permisoInicial?.fechaFin))
+
+const contratistas = computed(() => empresas.filter(e => e.tipoEmpresa === 'contratista').map(e => ({ id: e.id, texto: e.nombre })))
+const contratantes = computed(() => empresas.filter(e => e.tipoEmpresa === 'contratante').map(e => ({ id: e.id, texto: e.nombre })))
+const tiposTrabajoOpciones = computed(() => tiposTrabajo.map(t => ({ id: t.id, texto: t.nombre })))
 
 const riesgoCalculado = computed(() => {
-    if (!formulario.value.tipoTrabajoId || formulario.value.trabajadores.length === 0 || formulario.value.peligros.length === 0) return null
-    const tipo = tiposTrabajo.find(t => t.id === formulario.value.tipoTrabajoId)
-    if (!tipo) return null
-    return calcularRiesgo(tipo, formulario.value.peligros, formulario.value.trabajadores)
+  if (!tipoTrabajoId.value || trabajadoresSeleccionados.value.length === 0 || peligrosSeleccionados.value.length === 0) return null
+  const tipo = tiposTrabajo.find(t => t.id === tipoTrabajoId.value)
+  if (!tipo) return null
+  return calcularRiesgo(tipo, peligrosSeleccionados.value, trabajadoresSeleccionados.value)
 })
 
 const riesgoTexto = computed(() => {
-    if (riesgoCalculado.value === null) return '—'
-    switch (riesgoCalculado.value) {
-        case 'bajo': return 'Bajo'
-        case 'medio': return 'Medio'
-        case 'alto': return 'Alto'
-    }
+  if (riesgoCalculado.value === null) return '—'
+  switch (riesgoCalculado.value) {
+    case 'bajo': return 'Bajo'
+    case 'medio': return 'Medio'
+    case 'alto': return 'Alto'
+  }
 })
 
-const enviar = () => {
-    const empresaSol = empresas.find(e => e.id === formulario.value.empresaSolicitanteId)!
-    const empresaCont = empresas.find(e => e.id === formulario.value.empresaContratanteId)!
-    const tipoTrabajo = tiposTrabajo.find(t => t.id === formulario.value.tipoTrabajoId)!
+const validar = (): boolean => {
+  errores.value = []
+  if (!titulo.value.trim()) errores.value.push('El título es obligatorio.')
+  if (!fechaInicio.value) errores.value.push('La fecha de inicio es obligatoria.')
+  if (!fechaFin.value) errores.value.push('La fecha de fin es obligatoria.')
+  if (!empresaSolicitanteId.value) errores.value.push('Seleccioná una empresa solicitante.')
+  if (!empresaContratanteId.value) errores.value.push('Seleccioná una empresa contratante.')
+  if (!tipoTrabajoId.value) errores.value.push('Seleccioná un tipo de trabajo.')
+  if (peligrosSeleccionados.value.length === 0) errores.value.push('Seleccioná al menos un peligro.')
+  if (trabajadoresSeleccionados.value.length === 0) errores.value.push('Asigná al menos un trabajador.')
+  return errores.value.length === 0
+}
 
-    emit('submit', {
-        titulo: formulario.value.titulo,
-        descripcion: formulario.value.descripcion,
-        ubicacion: formulario.value.ubicacion,
-        fechaInicio: formulario.value.fechaInicio,
-        fechaFin: formulario.value.fechaFin,
-        empresaSolicitante: empresaSol,
-        empresaContratante: empresaCont,
-        tipoTrabajo: tipoTrabajo,
-        peligros: formulario.value.peligros,
-        trabajadores: formulario.value.trabajadores,
-        riesgo: riesgoCalculado.value || 'bajo',
-        respuestas: formulario.value.respuestas
-    })
+const enviar = () => {
+  if (!validar()) return
+
+  const empresaSol = empresas.find(e => e.id === empresaSolicitanteId.value)!
+  const empresaCont = empresas.find(e => e.id === empresaContratanteId.value)!
+  const tipoTrabajo = tiposTrabajo.find(t => t.id === tipoTrabajoId.value)!
+
+  emit('submit', {
+    titulo: titulo.value,
+    descripcion: descripcion.value,
+    ubicacion: ubicacion.value,
+    fechaInicio: fechaInicio.value,
+    fechaFin: fechaFin.value,
+    empresaSolicitante: empresaSol,
+    empresaContratante: empresaCont,
+    tipoTrabajo: tipoTrabajo,
+    peligros: peligrosSeleccionados.value,
+    trabajadores: trabajadoresSeleccionados.value,
+    riesgo: riesgoCalculado.value || 'bajo',
+    respuestas: {}
+  })
 }
 </script>
 
 <template>
-    <form @submit.prevent="enviar" class="space-y-6 bg-slate-50 p-8 rounded-3xl border border-slate-200">
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <div class="flex flex-col space-y-1">
-                <label class="text-xs font-black uppercase text-slate-500 ml-1">Título del trabajo <span class="text-rose-500">*</span></label>
-                <input v-model="formulario.titulo" required type="text" :disabled="esEdicion" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed" />
-            </div>
+  <div class="bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col max-h-[80vh]">
+    <!-- Cuerpo scrolleable -->
+    <div class="overflow-y-auto p-6 md:p-8 space-y-8 flex-1">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <InputTexto v-model:modelo="titulo" etiqueta="Título del trabajo" obligatorio :deshabilitado="esEdicion" />
+        <InputTexto v-model:modelo="ubicacion" etiqueta="Ubicación" :deshabilitado="esEdicion" />
+        <InputTexto v-model:modelo="fechaInicio" tipo="date" etiqueta="Fecha inicio" obligatorio />
+        <InputTexto v-model:modelo="fechaFin" tipo="date" etiqueta="Fecha fin" obligatorio />
+      </div>
 
-            <div class="flex flex-col space-y-1">
-                <label class="text-xs font-black uppercase text-slate-500 ml-1">Ubicación / Sector <span class="text-rose-500">*</span></label>
-                <input v-model="formulario.ubicacion" required type="text" :disabled="esEdicion" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed" />
-            </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <SelectInput v-model:modelo="empresaSolicitanteId" :opciones="contratistas" etiqueta="Empresa solicitante (PyME)" obligatorio :deshabilitado="esEdicion" />
+        <SelectInput v-model:modelo="empresaContratanteId" :opciones="contratantes" etiqueta="Empresa contratante" obligatorio :deshabilitado="esEdicion" />
+      </div>
 
-            <div class="flex flex-col space-y-1">
-                <label class="text-xs font-black uppercase text-slate-500 ml-1">Fecha de Inicio <span class="text-rose-500">*</span></label>
-                <input v-model="formulario.fechaInicio" required type="date" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-800 focus:border-indigo-500 outline-none transition" />
-            </div>
+      <SelectInput v-model:modelo="tipoTrabajoId" :opciones="tiposTrabajoOpciones" etiqueta="Tipo de trabajo" obligatorio :deshabilitado="esEdicion" />
 
-            <div class="flex flex-col space-y-1">
-                <label class="text-xs font-black uppercase text-slate-500 ml-1">Fecha de Fin <span class="text-rose-500">*</span></label>
-                <input v-model="formulario.fechaFin" required type="date" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-800 focus:border-indigo-500 outline-none transition" />
-            </div>
+      <TextAreaInput v-model:modelo="descripcion" etiqueta="Descripción de la tarea" />
 
-            <div class="flex flex-col space-y-1">
-                <label class="text-xs font-black uppercase text-slate-500 ml-1">Empresa Solicitante (PyME) <span class="text-rose-500">*</span></label>
-                <select v-model="formulario.empresaSolicitanteId" :disabled="esEdicion" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed">
-                    <option v-for="e in contratistas" required :key="e.id" :value="e.id">{{ e.nombre }}</option>
-                </select>
-            </div>
+      <div class="border-t border-slate-800 pt-6 space-y-6">
+        <SelectorPeligros v-model:seleccionados="peligrosSeleccionados" />
+        <SelectorTrabajadores v-model:seleccionados="trabajadoresSeleccionados" />
+      </div>
 
-            <div class="flex flex-col space-y-1">
-                <label class="text-xs font-black uppercase text-slate-500 ml-1">Empresa Contratante <span class="text-rose-500">*</span></label>
-                <select v-model="formulario.empresaContratanteId" :disabled="esEdicion" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed">
-                    <option v-for="e in contratantes" required :key="e.id" :value="e.id">{{ e.nombre }}</option>
-                </select>
-            </div>
+      <div v-if="riesgoCalculado" class="text-center bg-slate-800 p-4 rounded-2xl">
+        <span class="text-xs font-black uppercase text-slate-400">Riesgo calculado:</span>
+        <span class="ml-2 text-lg font-bold uppercase"
+          :class="{
+            'text-emerald-400': riesgoCalculado === 'bajo',
+            'text-amber-400': riesgoCalculado === 'medio',
+            'text-rose-400': riesgoCalculado === 'alto'
+          }">
+          {{ riesgoTexto }}
+        </span>
+      </div>
 
-            <div class="flex flex-col space-y-1 md:col-span-2">
-                <label class="text-xs font-black uppercase text-slate-500 ml-1">Tipo de trabajo <span class="text-rose-500">*</span></label>
-                <select v-model="formulario.tipoTrabajoId" :disabled="esEdicion" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed">
-                    <option v-for="t in tiposTrabajo" required :key="t.id" :value="t.id">{{ t.nombre }}</option>
-                </select>
-            </div>
-        </div>
+      <div v-if="errores.length" class="bg-rose-500/10 border border-rose-500/20 rounded-xl p-4">
+        <ul class="list-disc pl-5 text-sm text-rose-400 space-y-1">
+          <li v-for="error in errores" :key="error">{{ error }}</li>
+        </ul>
+      </div>
+    </div>
 
-        <div class="flex flex-col space-y-1">
-            <label class="text-xs font-black uppercase text-slate-500 ml-1">Descripción de la tarea</label>
-            <textarea v-model="formulario.descripcion" rows="3" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-medium focus:border-indigo-500 outline-none transition"></textarea>
-        </div>
-
-        <div class="space-y-6 pt-4 border-t border-slate-200">
-            <SelectorPeligros v-model:seleccionados="formulario.peligros" />
-            <SelectorTrabajadores v-model:seleccionados="formulario.trabajadores" />
-        </div>
-
-        <div v-if="riesgoCalculado" class="text-center mt-4">
-            <span class="text-xs font-black uppercase text-slate-500">Riesgo calculado:</span>
-            <span class="ml-2 text-lg font-bold uppercase" :class="{
-                'text-emerald-600': riesgoCalculado === 'bajo',
-                'text-amber-600': riesgoCalculado === 'medio',
-                'text-rose-600': riesgoCalculado === 'alto'
-            }">
-                {{ riesgoTexto }}
-            </span>
-        </div>
-
-        <!--<div v-if="formulario.tipoTrabajoId && bancoPreguntas[formulario.tipoTrabajoId]" class="space-y-4 pt-4 border-t border-slate-200">
-            <h3 class="text-xs font-black uppercase text-slate-500">Controles Requeridos (Revisar y corregir)</h3>
-            
-            <div v-for="(pregunta, index) in bancoPreguntas[formulario.tipoTrabajoId]" :key="index" class="p-4 bg-white border border-slate-200 rounded-2xl space-y-2">
-                <p class="text-xs font-bold text-slate-700 uppercase tracking-wide">{{ pregunta.req }}</p>
-                
-                <div class="grid grid-cols-1 gap-2">
-                    <label v-for="(texto, valor) in pregunta.res" :key="valor" class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 border border-transparent cursor-pointer text-sm font-medium text-slate-600">
-                        <input type="radio" :name="'preg-' + index" :value="valor" v-model="formulario.respuestas[pregunta.req]" class="w-4 h-4 text-indigo-600 border-slate-300 cursor-pointer" />
-                        <span>{{ texto }}</span>
-                    </label>
-                </div>
-            </div>
-        </div>-->
-
-        <div v-if="esEdicion && comentarioRechazo" class="bg-rose-50 border border-rose-200 p-4 rounded-xl">
-            <h5 class="text-xs font-black uppercase text-rose-700 mb-1">⚠️ Motivo del Rechazo (Auditor):</h5>
-            <p class="text-sm font-medium text-rose-900">{{ comentarioRechazo }}</p>
-        </div>
-
-        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
-            <button type="button" @click="$emit('cancelar')" class="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold uppercase hover:bg-slate-100 transition cursor-pointer">Cancelar</button>
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-widest px-6 py-2.5 rounded-xl shadow-sm transition cursor-pointer">
-                {{ esEdicion ? 'Enviar Corrección' : 'Solicitar Permiso' }}
-            </button>
-        </div>
-    </form>
+    <!-- Barra inferior sticky -->
+    <div class="sticky bottom-0 bg-slate-900 border-t border-slate-800 px-6 md:px-8 py-4 flex justify-end gap-4 rounded-b-3xl">
+      <button type="button" @click="$emit('cancelar')"
+        class="px-6 py-2.5 rounded-xl border border-slate-700 text-slate-400 text-xs font-bold uppercase hover:bg-slate-800 transition">
+        Cancelar
+      </button>
+      <BotonPrimario type="submit" @click.prevent="enviar">
+        {{ esEdicion ? 'Enviar Corrección' : 'Solicitar Permiso' }}
+      </BotonPrimario>
+    </div>
+  </div>
 </template>

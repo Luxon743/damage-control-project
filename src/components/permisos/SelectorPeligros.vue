@@ -30,7 +30,7 @@ const estaSeleccionado = (id: string) => {
     </p>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
       <label v-for="peligro in todosLosPeligros" :key="peligro.id"
-        class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer hover:bg-slate-50 p-1 rounded-lg">
+        class="flex items-center gap-2 text-sm text-white cursor-pointer hover:bg-black p-1 rounded-lg">
         <input type="checkbox" :checked="estaSeleccionado(peligro.id)" @change="togglePeligro(peligro)"
           class="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500" />
         {{ peligro.nombre }}

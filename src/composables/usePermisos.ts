@@ -34,6 +34,7 @@ export function usePermisos() {
             intentosReenvio: 2
         };
         permisos.value.push(nuevoPermiso);
+        return nuevoId;
     };
 
     const reenviarPermiso = (id: string, correccion: { descripcion: string; respuestas: Record<string, string>; peligros: Peligro[]; trabajadores: Trabajador[] }) => {
@@ -62,7 +63,13 @@ export function usePermisos() {
             if (decision === 'aprobado') {
                 permiso.estado = 'aprobado';
             } else if (decision === 'rechazado') {
-                permiso.estado = 'rechazado';
+                // Si ya no le quedan intentos, pasa a finalizado
+                if (permiso.intentosReenvio === 0) {
+                    permiso.estado = 'finalizado';
+                } else {
+                    permiso.estado = 'rechazado';
+                }
+
                 if (comentario) {
                     permiso.comentarioRechazo = comentario;
                     if (permiso.versiones.length > 0) {
