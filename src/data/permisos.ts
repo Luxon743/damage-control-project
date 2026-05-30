@@ -1,0 +1,144 @@
+import type { PermisoTrabajo } from '../models/PermisoTrabajo';
+import { empresas } from './empresas';
+import { trabajadores } from './trabajadores';
+import { tiposTrabajo } from './tiposTrabajo';
+import { peligros } from './peligros';
+
+export const permisosIniciales: PermisoTrabajo[] = [
+    {
+        id: 'PT-001',
+        titulo: 'Cambio de luminarias en playa de tanques',
+        descripcion: 'Reemplazo de 12 reflectores LED en altura sobre pasarela',
+        empresaSolicitante: empresas[3]!,
+        empresaContratante: empresas[0]!,
+        ubicacion: 'Planta YPF – Sector 4',
+        fechaInicio: '12/06/2026',
+        fechaFin: '12/06/2026',
+        tipoTrabajo: tiposTrabajo[0]!,
+        peligros: [peligros[2]!, peligros[0]!],
+        trabajadores: [trabajadores[1]!, trabajadores[3]!],
+        estado: 'pendiente',
+        riesgo: 'medio',
+        versiones: [
+            {
+                descripcion: 'Reemplazo de 12 reflectores LED en altura sobre pasarela',
+                peligros: [peligros[2]!, peligros[0]!],
+                trabajadores: [trabajadores[1]!, trabajadores[3]!],
+                respuestas: {
+                    'Altura de la tarea a realizar': 'r2',
+                    'Tipo de sistema anticaídas': 'r4'
+                }
+            }
+        ],
+        intentosReenvio: 2
+    },
+    {
+        id: 'PT-002',
+        titulo: 'Soldadura de cañería en línea de gas',
+        descripcion: 'Reparación de fuga en caño de 4 pulgadas con soldadura TIG',
+        empresaSolicitante: empresas[3]!,
+        empresaContratante: empresas[1]!,
+        ubicacion: 'Batería 8 – Zona de compresores',
+        fechaInicio: '15/06/2026',
+        fechaFin: '16/06/2026',
+        tipoTrabajo: tiposTrabajo[1]!,
+        peligros: [peligros[5]!, peligros[4]!],
+        trabajadores: [trabajadores[0]!, trabajadores[2]!],
+        estado: 'aprobado',
+        riesgo: 'alto',
+        versiones: [
+            {
+                descripcion: 'Reparación de fuga en caño de 4 pulgadas con soldadura TIG',
+                peligros: [peligros[5]!, peligros[4]!],
+                trabajadores: [trabajadores[0]!, trabajadores[2]!],
+                respuestas: {
+                    'Estado de herramientas y equipos': 'r7',
+                    'Distancia a líneas de tensión': 'r10'
+                }
+            }
+        ],
+        intentosReenvio: 2
+    },
+    {
+        id: 'PT-003',
+        titulo: 'Mantenimiento de tablero general',
+        descripcion: 'Limpieza y ajuste de bornes en tablero de 380V',
+        empresaSolicitante: empresas[4]!,
+        empresaContratante: empresas[2]!,
+        ubicacion: 'Siderca – Nave 2',
+        fechaInicio: '20/06/2026',
+        fechaFin: '20/06/2026',
+        tipoTrabajo: tiposTrabajo[2]!,
+        peligros: [peligros[1]!, peligros[6]!],
+        trabajadores: [trabajadores[1]!],
+        estado: 'rechazado',
+        riesgo: 'alto',
+        comentarioRechazo: 'Falta especificar procedimiento de bloqueo y etiquetado (LOTO)',
+        versiones: [
+            {
+                descripcion: 'Limpieza y ajuste de bornes en tablero de 380V',
+                peligros: [peligros[1]!, peligros[6]!],
+                trabajadores: [trabajadores[1]!],
+                respuestas: {
+                    'Estado de herramientas y equipos': 'r8',
+                    'Distancia a líneas de tensión': 'r11'
+                },
+                comentarioRechazo: 'Falta especificar procedimiento de bloqueo y etiquetado (LOTO)'
+            }
+        ],
+        intentosReenvio: 2
+    },
+    {
+        id: 'PT-004',
+        titulo: 'Izaje de compresor nuevo',
+        descripcion: 'Montaje de compresor de 2 toneladas en plataforma',
+        empresaSolicitante: empresas[5]!,
+        empresaContratante: empresas[0]!,
+        ubicacion: 'YPF – Planta compresora',
+        fechaInicio: '18/06/2026',
+        fechaFin: '18/06/2026',
+        tipoTrabajo: tiposTrabajo[4]!,
+        peligros: [peligros[3]!, peligros[6]!],
+        trabajadores: [trabajadores[3]!, trabajadores[2]!],
+        estado: 'finalizado',
+        riesgo: 'medio',
+        versiones: [
+            {
+                descripcion: 'Montaje de compresor de 2 toneladas en plataforma',
+                peligros: [peligros[3]!, peligros[6]!],
+                trabajadores: [trabajadores[3]!, trabajadores[2]!],
+                respuestas: {
+                    'Altura de la tarea a realizar': 'r1',
+                    'Tipo de sistema anticaídas': 'r4'
+                }
+            }
+        ],
+        intentosReenvio: 2
+    },
+    {
+        id: 'PT-005',
+        titulo: 'Excavación para tendido de cables',
+        descripcion: 'Zanja de 1.2 m de profundidad para cableado de fibra óptica',
+        empresaSolicitante: empresas[5]!,
+        empresaContratante: empresas[2]!,
+        ubicacion: 'Siderca – Perímetro externo',
+        fechaInicio: '22/06/2026',
+        fechaFin: '23/06/2026',
+        tipoTrabajo: tiposTrabajo[5]!,
+        peligros: [peligros[6]!, peligros[4]!],
+        trabajadores: [trabajadores[5]!],
+        estado: 'pendiente',
+        riesgo: 'bajo',
+        versiones: [
+            {
+                descripcion: 'Zanja de 1.2 m de profundidad para cableado de fibra óptica',
+                peligros: [peligros[6]!, peligros[4]!],
+                trabajadores: [trabajadores[5]!],
+                respuestas: {
+                    'Altura de la tarea a realizar': 'r1'
+                }
+            }
+        ],
+        intentosReenvio: 2
+    }
+];
