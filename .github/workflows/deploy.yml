@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ fix/deploy-pages ] # 👈 Corre la acción cuando subas cambios a esta rama
+    branches: [ main ]
 
 permissions:
   contents: read
