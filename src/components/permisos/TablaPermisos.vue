@@ -34,44 +34,24 @@ const ordenEstado: Record<string, number> = {
 
 const convertirFechaAValor = (fecha: string) => {
   if (!fecha) return 0
-
-  if (fecha.includes('-')) {
-    return new Date(fecha).getTime()
-  }
-
+  if (fecha.includes('-')) return new Date(fecha).getTime()
   if (fecha.includes('/')) {
     const [dia, mes, anio] = fecha.split('/')
     return new Date(Number(anio), Number(mes) - 1, Number(dia)).getTime()
   }
-
   return 0
 }
 
 const obtenerValorOrden = (permiso: PermisoTrabajo, columna: ColumnaOrden) => {
   switch (columna) {
-    case 'id':
-      return permiso.id.toLowerCase()
-
-    case 'titulo':
-      return permiso.titulo.toLowerCase()
-
-    case 'empresa':
-      return permiso.empresaSolicitante.nombre.toLowerCase()
-
-    case 'tipo':
-      return permiso.tipoTrabajo.nombre.toLowerCase()
-
-    case 'estado':
-      return ordenEstado[permiso.estado] ?? 0
-
-    case 'riesgo':
-      return ordenRiesgo[permiso.riesgo] ?? 0
-
-    case 'fecha':
-      return convertirFechaAValor(permiso.fechaInicio)
-
-    default:
-      return ''
+    case 'id': return permiso.id.toLowerCase()
+    case 'titulo': return permiso.titulo.toLowerCase()
+    case 'empresa': return permiso.empresaSolicitante.nombre.toLowerCase()
+    case 'tipo': return permiso.tipoTrabajo.nombre.toLowerCase()
+    case 'estado': return ordenEstado[permiso.estado] ?? 0
+    case 'riesgo': return ordenRiesgo[permiso.riesgo] ?? 0
+    case 'fecha': return convertirFechaAValor(permiso.fechaInicio)
+    default: return ''
   }
 }
 
@@ -112,75 +92,52 @@ const riesgoClase = (riesgo: string) => {
 </script>
 
 <template>
-  <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-xl">
-    <table class="w-full text-left text-sm">
+  <!-- QUITADO overflow-hidden, mantenemos overflow-x-auto para permitir scroll horizontal -->
+  <div class="rounded-2xl border border-slate-800 bg-slate-900 shadow-xl overflow-x-auto">
+    <table class="w-full text-left text-sm min-w-700px">
       <thead class="bg-slate-800">
         <tr>
-          <th
-            @click="ordenarPor('id')"
-            :class="claseHeader('id')"
-            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition"
-          >
+          <th @click="ordenarPor('id')" :class="claseHeader('id')"
+            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition">
             ID {{ iconoOrden('id') }}
           </th>
 
-          <th
-            @click="ordenarPor('titulo')"
-            :class="claseHeader('titulo')"
-            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition"
-          >
+          <th @click="ordenarPor('titulo')" :class="claseHeader('titulo')"
+            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition">
             Título {{ iconoOrden('titulo') }}
           </th>
 
-          <th
-            @click="ordenarPor('empresa')"
-            :class="claseHeader('empresa')"
-            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition"
-          >
+          <th @click="ordenarPor('empresa')" :class="claseHeader('empresa')"
+            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition">
             Empresa {{ iconoOrden('empresa') }}
           </th>
 
-          <th
-            @click="ordenarPor('tipo')"
-            :class="claseHeader('tipo')"
-            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition"
-          >
+          <th @click="ordenarPor('tipo')" :class="claseHeader('tipo')"
+            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition">
             Tipo {{ iconoOrden('tipo') }}
           </th>
 
-          <th
-            @click="ordenarPor('estado')"
-            :class="claseHeader('estado')"
-            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition"
-          >
+          <th @click="ordenarPor('estado')" :class="claseHeader('estado')"
+            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition">
             Estado {{ iconoOrden('estado') }}
           </th>
 
-          <th
-            @click="ordenarPor('riesgo')"
-            :class="claseHeader('riesgo')"
-            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition"
-          >
+          <th @click="ordenarPor('riesgo')" :class="claseHeader('riesgo')"
+            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition">
             Riesgo {{ iconoOrden('riesgo') }}
           </th>
 
-          <th
-            @click="ordenarPor('fecha')"
-            :class="claseHeader('fecha')"
-            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition"
-          >
+          <th @click="ordenarPor('fecha')" :class="claseHeader('fecha')"
+            class="px-6 py-4 text-xs font-black uppercase tracking-wider cursor-pointer select-none transition">
             Fecha {{ iconoOrden('fecha') }}
           </th>
         </tr>
       </thead>
 
       <tbody>
-        <tr
-          v-for="permiso in permisosOrdenados"
-          :key="permiso.id"
+        <tr v-for="permiso in permisosOrdenados" :key="permiso.id"
           class="border-t border-slate-800 hover:bg-slate-800/50 transition cursor-pointer"
-          @click="emit('ver-detalle', permiso.id)"
-        >
+          @click="emit('ver-detalle', permiso.id)">
           <td class="px-6 py-4 font-mono text-slate-400">
             {{ permiso.id }}
           </td>
@@ -198,13 +155,15 @@ const riesgoClase = (riesgo: string) => {
           </td>
 
           <td class="px-6 py-4">
-            <span :class="estadoClase(permiso.estado)" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
+            <span :class="estadoClase(permiso.estado)"
+              class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
               {{ permiso.estado }}
             </span>
           </td>
 
           <td class="px-6 py-4">
-            <span :class="riesgoClase(permiso.riesgo)" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
+            <span :class="riesgoClase(permiso.riesgo)"
+              class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
               {{ permiso.riesgo }}
             </span>
           </td>

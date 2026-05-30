@@ -33,11 +33,9 @@ const peligrosSeleccionados = ref<Peligro[]>(props.permisoInicial?.peligros ? [.
 const trabajadoresSeleccionados = ref<Trabajador[]>(props.permisoInicial?.trabajadores ? [...props.permisoInicial.trabajadores] : [])
 const errores = ref<string[]>([])
 
-// Función que traduce 'DD/MM/YYYY' a 'YYYY-MM-DD' para que el input lo acepte
 const formatearFechaParaInput = (fecha?: string) => {
   if (!fecha) return ''
   if (fecha.includes('-')) return fecha 
-  
   if (fecha.includes('/')) {
     const [dia, mes, anio] = fecha.split('/')
     return `${anio}-${mes}-${dia}`
@@ -45,7 +43,6 @@ const formatearFechaParaInput = (fecha?: string) => {
   return fecha
 }
 
-// Ahora usamos la función para inicializar los datos
 const fechaInicio = ref(formatearFechaParaInput(props.permisoInicial?.fechaInicio))
 const fechaFin = ref(formatearFechaParaInput(props.permisoInicial?.fechaFin))
 
@@ -107,58 +104,58 @@ const enviar = () => {
 </script>
 
 <template>
-  <form @submit.prevent="enviar" class="space-y-8 bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl max-h-[75vh] overflow-y-auto">
-    <!-- Campos obligatorios bloqueados en edición -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <InputTexto v-model:modelo="titulo" etiqueta="Título del trabajo" obligatorio :deshabilitado="esEdicion" />
-      <InputTexto v-model:modelo="ubicacion" etiqueta="Ubicación" :deshabilitado="esEdicion" />
-      <InputTexto v-model:modelo="fechaInicio" tipo="date" etiqueta="Fecha inicio" obligatorio />
-      <InputTexto v-model:modelo="fechaFin" tipo="date" etiqueta="Fecha fin" obligatorio />
+  <div class="bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col max-h-[80vh]">
+    <!-- Cuerpo scrolleable -->
+    <div class="overflow-y-auto p-6 md:p-8 space-y-8 flex-1">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <InputTexto v-model:modelo="titulo" etiqueta="Título del trabajo" obligatorio :deshabilitado="esEdicion" />
+        <InputTexto v-model:modelo="ubicacion" etiqueta="Ubicación" :deshabilitado="esEdicion" />
+        <InputTexto v-model:modelo="fechaInicio" tipo="date" etiqueta="Fecha inicio" obligatorio />
+        <InputTexto v-model:modelo="fechaFin" tipo="date" etiqueta="Fecha fin" obligatorio />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <SelectInput v-model:modelo="empresaSolicitanteId" :opciones="contratistas" etiqueta="Empresa solicitante (PyME)" obligatorio :deshabilitado="esEdicion" />
+        <SelectInput v-model:modelo="empresaContratanteId" :opciones="contratantes" etiqueta="Empresa contratante" obligatorio :deshabilitado="esEdicion" />
+      </div>
+
+      <SelectInput v-model:modelo="tipoTrabajoId" :opciones="tiposTrabajoOpciones" etiqueta="Tipo de trabajo" obligatorio :deshabilitado="esEdicion" />
+
+      <TextAreaInput v-model:modelo="descripcion" etiqueta="Descripción de la tarea" />
+
+      <div class="border-t border-slate-800 pt-6 space-y-6">
+        <SelectorPeligros v-model:seleccionados="peligrosSeleccionados" />
+        <SelectorTrabajadores v-model:seleccionados="trabajadoresSeleccionados" />
+      </div>
+
+      <div v-if="riesgoCalculado" class="text-center bg-slate-800 p-4 rounded-2xl">
+        <span class="text-xs font-black uppercase text-slate-400">Riesgo calculado:</span>
+        <span class="ml-2 text-lg font-bold uppercase"
+          :class="{
+            'text-emerald-400': riesgoCalculado === 'bajo',
+            'text-amber-400': riesgoCalculado === 'medio',
+            'text-rose-400': riesgoCalculado === 'alto'
+          }">
+          {{ riesgoTexto }}
+        </span>
+      </div>
+
+      <div v-if="errores.length" class="bg-rose-500/10 border border-rose-500/20 rounded-xl p-4">
+        <ul class="list-disc pl-5 text-sm text-rose-400 space-y-1">
+          <li v-for="error in errores" :key="error">{{ error }}</li>
+        </ul>
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <SelectInput v-model:modelo="empresaSolicitanteId" :opciones="contratistas" etiqueta="Empresa solicitante (PyME)" obligatorio :deshabilitado="esEdicion" />
-      <SelectInput v-model:modelo="empresaContratanteId" :opciones="contratantes" etiqueta="Empresa contratante" obligatorio :deshabilitado="esEdicion" />
-    </div>
-
-    <SelectInput v-model:modelo="tipoTrabajoId" :opciones="tiposTrabajoOpciones" etiqueta="Tipo de trabajo" obligatorio :deshabilitado="esEdicion" />
-
-    <TextAreaInput v-model:modelo="descripcion" etiqueta="Descripción de la tarea" />
-
-    <div class="border-t border-slate-800 pt-6 space-y-6">
-      <SelectorPeligros v-model:seleccionados="peligrosSeleccionados" />
-      <SelectorTrabajadores v-model:seleccionados="trabajadoresSeleccionados" />
-    </div>
-
-    <!-- Riesgo calculado -->
-    <div v-if="riesgoCalculado" class="text-center bg-slate-800 p-4 rounded-2xl">
-      <span class="text-xs font-black uppercase text-slate-400">Riesgo calculado:</span>
-      <span class="ml-2 text-lg font-bold uppercase"
-        :class="{
-          'text-emerald-400': riesgoCalculado === 'bajo',
-          'text-amber-400': riesgoCalculado === 'medio',
-          'text-rose-400': riesgoCalculado === 'alto'
-        }">
-        {{ riesgoTexto }}
-      </span>
-    </div>
-
-    <!-- Errores -->
-    <div v-if="errores.length" class="bg-rose-500/10 border border-rose-500/20 rounded-xl p-4">
-      <ul class="list-disc pl-5 text-sm text-rose-400 space-y-1">
-        <li v-for="error in errores" :key="error">{{ error }}</li>
-      </ul>
-    </div>
-
-    <!-- Botones -->
-    <div class="flex justify-end gap-4 pt-4 border-t border-slate-800">
+    <!-- Barra inferior sticky -->
+    <div class="sticky bottom-0 bg-slate-900 border-t border-slate-800 px-6 md:px-8 py-4 flex justify-end gap-4 rounded-b-3xl">
       <button type="button" @click="$emit('cancelar')"
         class="px-6 py-2.5 rounded-xl border border-slate-700 text-slate-400 text-xs font-bold uppercase hover:bg-slate-800 transition">
         Cancelar
       </button>
-      <BotonPrimario type="submit">
+      <BotonPrimario type="submit" @click.prevent="enviar">
         {{ esEdicion ? 'Enviar Corrección' : 'Solicitar Permiso' }}
       </BotonPrimario>
     </div>
-  </form>
+  </div>
 </template>

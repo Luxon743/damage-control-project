@@ -24,8 +24,10 @@ const cerrarSidebar = (): void => {
     <!-- Overlay + sidebar off‑canvas en móvil -->
     <div v-if="sidebarAbierto" class="fixed inset-0 z-40 bg-black/60 md:hidden" @click="cerrarSidebar" />
 
-    <div class="fixed inset-y-0 left-0 z-50 w-64 md:hidden transition-transform duration-300"
-        :class="sidebarAbierto ? 'translate-x-0' : '-translate-x-full'">
+    <div
+      class="fixed inset-y-0 left-0 z-50 w-64 md:hidden transition-transform duration-300"
+      :class="sidebarAbierto ? 'translate-x-0' : '-translate-x-full'"
+    >
       <div class="h-full overflow-y-auto bg-slate-900 text-slate-300 shadow-xl">
         <Sidebar @navegar="cerrarSidebar" />
       </div>
@@ -34,7 +36,8 @@ const cerrarSidebar = (): void => {
     <div class="flex flex-col flex-1 overflow-hidden">
       <Header @abrir-sidebar="abrirSidebar" class="h-16 shrink-0" />
 
-      <main class="flex-1 overflow-y-auto p-6">
+      <!-- main: en móvil permite scroll, en escritorio lo limita -->
+      <main class="flex-1 overflow-y-auto md:overflow-hidden p-6">
         <RouterView />
       </main>
     </div>
